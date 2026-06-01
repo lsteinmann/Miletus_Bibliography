@@ -87,12 +87,13 @@ bib_json <- lapply(seq, function(x) {
 })
 message(paste0("Finished downloading."))
 # and make a handy tibble out of that for joining with the csv-table later:
-citation_keys <- map_dfr(bib_json, function(x){
-  tibble(
-    Key = x$key, 
-    citationKey = ifelse(x$citationKey == "", NA, x$citationKey)
-  )
+citation_keys <- lapply(bib_json, function(x) {
+  list(Key = x$Key, citationKey = x$citationKey)
 })
+citation_keys <- do.call(bind_rows, tmp)
+# what fresh hell is this, why is the column renamed by bind_rows
+# if I need it case sensitive I need it case sensitive.
+colnames(citation_keys) <- c("Key", "citationKey")
 
 # this is probably not an issue anymore - however, I leave it here.
 wrong_keycol <- which(colnames(bib_csv) == "X.U.FEFF.Key")
