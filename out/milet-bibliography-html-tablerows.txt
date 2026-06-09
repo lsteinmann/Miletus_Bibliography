@@ -203,6 +203,18 @@ Niewöhner, Philipp, Archangels, Empty Ciboria, and the Defense of Late Antique 
 </tr>
 
 <tr>
+<td>The Sanctuary of Athena at Miletos</td>
+<td>Niemeier, Wolf-Dietrich</td>
+<td>2024</td>
+<td>Göttinger Studien zur Mediterranen Archäologie</td>
+<td>
+Niemeier, Wolf-Dietrich, The Sanctuary of Athena at Miletos, in: , Antike Heiligtümer in Griechenland, Magna Graecia und Sizilien. Entstehung, Funktionen, Riten und Monumentalisierung als religiöse und interkulturelle Phänomene ( 2024), 41-67</td>
+</td>
+<td>08 Kulte und Kulteinrichtungen; 08-04 Kulte: Athena</td>
+<td></td>
+</tr>
+
+<tr>
 <td>“Armed” with Modern History. The Statue of the River God Meander at Miletus, 1909-2023.</td>
 <td>Lordoğlu, Nisan; Lenaghan, Julia</td>
 <td>2024</td>
@@ -211,6 +223,18 @@ Niewöhner, Philipp, Archangels, Empty Ciboria, and the Defense of Late Antique 
 Lordoğlu, Nisan; Lenaghan, Julia, “Armed” with Modern History. The Statue of the River God Meander at Miletus, 1909-2023., Anadolu Araştırmaları / Anatolian Research 0, 2024, 271-286 <br> <a href="https://doi.org/10.26650/anar.2024.30.1451818">Online verfügbar (DOI)</a></td>
 </td>
 <td>03 Funde aus Milet; 03-04 Funde: Skulptur; 07 Architektur; 07-07 Architektur: Gymnasia und Thermenanlagen; Faustinathermen</td>
+<td></td>
+</tr>
+
+<tr>
+<td>Rezension zu: K. Nawotka, The Nourisher of Apollo (Wiesbaden 2023)</td>
+<td>Huy, Sabine</td>
+<td>2024</td>
+<td>Journal of Greek Archaeology</td>
+<td>
+Huy, Sabine, Rezension zu: K. Nawotka, The Nourisher of Apollo (Wiesbaden 2023), Journal of Greek Archaeology 9, 2024, 505-511</td>
+</td>
+<td>03 Funde aus Milet; 03-08 Funde: Inschriften; 03-09 Funde: Münzen; 10 politische Geschichte; 10-03 Geschichte: klassische Zeit; 10-04 Geschichte: hellenistische Zeit; 10-05 Geschichte: Kaiserzeit; 10-06 Geschichte: Spät und Nachantike</td>
 <td></td>
 </tr>
 
@@ -643,6 +667,18 @@ Gabel, Jenny; Berns, Christof; Bosch, Sebastian; Eickmeyer, Jost; Harter-Uibopuu
 Feraru, Remus Mihai, Fêtes consacrées à Apollon à Milet et dans les colonies milésiennes du Pont-Euxin, Pontica 55, 2022, 25-53</td>
 </td>
 <td>08 Kulte und Kulteinrichtungen; 08-02 Kulte: Apollon Delphinios</td>
+<td></td>
+</tr>
+
+<tr>
+<td>Rezension zu: K. Sarantidis, Milesian Islands. The fortified installations in the insular environment of Miletus in the Aegean in Context, Tghiasos Monografie 15 (Roma 2020)</td>
+<td>Berns, Christof</td>
+<td>2022</td>
+<td>Topoi</td>
+<td>
+Berns, Christof, Rezension zu: K. Sarantidis, Milesian Islands. The fortified installations in the insular environment of Miletus in the Aegean in Context, Tghiasos Monografie 15 (Roma 2020), Topoi 25, 2022, 413-416</td>
+</td>
+<td>07 Architektur; 07-02 Architektur: Stadtmauern und Wehranlagen; Rezension</td>
 <td></td>
 </tr>
 
@@ -6284,6 +6320,18 @@ Henke, Jan-Marc, Funde aus Milet XVIII. Kyprische Koroplastik, Archäologischer 
 </td>
 <td>03 Funde aus Milet; 03-06 Funde: Terrakotta; Aphrodite; Archaisch; Bauforschung; Heiligtum; Tempel; Zeytintepe</td>
 <td></td>
+</tr>
+
+<tr>
+<td>Forms and Processes. Some Thoughts on the Meaning of Urbanization in Early Archaic Greece</td>
+<td>François, De Polignac</td>
+<td>2005</td>
+<td></td>
+<td>
+François, De Polignac, Forms and Processes. Some Thoughts on the Meaning of Urbanization in Early Archaic Greece, in: , Mediterranean Urbanization 800-600 BC (New York 2005), 44-69</td>
+</td>
+<td>02 Allgemeine Darstellungen / Topographie; 02-04 Topographie: archaische Zeit</td>
+<td>This chapter examines the forms, process, and meaning of urbanization in the early Archaic Period in Greece. It explains that the Greek world is particularly suitable for a study of the processes of urbanization in the Archaic Mediterranean. Prime candidates for the essential traits of a Greek town are the clear functional distinctions between different types of space, and one such distinction is that between exterior and urban space.</td>
 </tr>
 
 <tr>
