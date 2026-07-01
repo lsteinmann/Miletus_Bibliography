@@ -1,4 +1,28 @@
 <tr>
+<td>Ein Theater voller Inschriften. Milet virtuell neu entdeckt</td>
+<td>Berns, Christof; Harter-Uibopuu, Kaja; Osthof, Ann Lauren; Gabel, Jenny; Steinicke, Frank</td>
+<td>2026</td>
+<td>Antike Welt. Zeitschrift für Archäologie und Kulturgeschichte</td>
+<td>
+Berns, Christof; Harter-Uibopuu, Kaja; Osthof, Ann Lauren; Gabel, Jenny; Steinicke, Frank, Ein Theater voller Inschriften. Milet virtuell neu entdeckt, Antike Welt. Zeitschrift für Archäologie und Kulturgeschichte 3/26, 2026, 57-65</td>
+</td>
+<td></td>
+<td></td>
+</tr>
+
+<tr>
+<td>A Milesian Fountain and its Inscription: Water for all, or an Elitist Monument?</td>
+<td>Berns, Christof</td>
+<td>2026</td>
+<td></td>
+<td>
+ <br> <a href="https://www.csmc.uni-hamburg.de/publications/aom/037-en.html">Online verfügbar (Link)</a></td>
+</td>
+<td></td>
+<td></td>
+</tr>
+
+<tr>
 <td>Finds from Miletus XXXIII. Scarabs in Faience and Steatite from the Bothros, Sanctaury of Aphrodite on Zeytintepe (>Olive Hill<)</td>
 <td>Webb, Virginia</td>
 <td>2025</td>
