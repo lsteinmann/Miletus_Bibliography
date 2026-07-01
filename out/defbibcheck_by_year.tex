@@ -1,3 +1,11 @@
+\defbibcheck{yr2026}{%
+  \iffieldint{year}
+  {\ifnumequal{\thefield{year}}{2026}
+    {}
+    {\skipentry}}
+  {\skipentry}}
+
+
 \defbibcheck{yr2025}{%
   \iffieldint{year}
   {\ifnumequal{\thefield{year}}{2025}
