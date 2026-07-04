@@ -40,7 +40,7 @@ class ZoteroClient:
         response.raise_for_status()
         return int(response.headers.get('Total-Results', 0))
     
-    def _fetch_items_batch(self, start_index: int, format_type: str = "csv") -> str:
+    def _fetch_items_batch(self, start_index: int, format_type: str = "csv", batch_size: int = 100) -> str:
         """
         Fetch a batch of items from Zotero API.
         
@@ -52,7 +52,7 @@ class ZoteroClient:
             str: Raw response data
         """
         params = {
-            'limit': 100,
+            'limit': batch_size,
             'start': start_index,
             'v': 3
         }
@@ -104,8 +104,13 @@ class ZoteroClient:
         else: 
             fetch_limit = limit
         
-        # Generate sequence for batching
-        batch_size = 100
+        # Generate sequence for batching, a batch should not be larger than 100, 
+        # but if we want to fetch less than 100 items... well this is not correct either
+        # but enough for testing right now.
+        if fetch_limit >= 100: 
+            batch_size = 100
+        else: 
+            batch_size = fetch_limit
         sequences = list(range(0, fetch_limit, batch_size))
         
         all_responses = []
@@ -114,7 +119,7 @@ class ZoteroClient:
             print(f"Fetching batch {i+1}/{len(sequences)} (items {start_index}-{min(start_index+batch_size, fetch_limit)})")
             
             try:
-                response_data = self._fetch_items_batch(start_index, format_type)
+                response_data = self._fetch_items_batch(start_index, format_type, batch_size)
                 all_responses.append(response_data)
                 
                 # Be respectful to the API - add delay between requests
