@@ -115,26 +115,16 @@ class TagClient:
         tag_row = self.tags_df[self.tags_df['tag'] == tag_name]
         
         if tag_row.empty:
+            # I think this never happens.
             return None
-            
+
+        # This does not do what it should yet. But I have not figured out what it should do. 
+        # This, we simply return the highest level hierarchy:
         tag_info = tag_row.iloc[0]
-        gruppe = tag_info['Gruppe']
-        untergruppe_1 = tag_info['Untergruppe_1']
-        
-        # If only Gruppe exists, no parent
-        if pd.isna(untergruppe_1):
-            return None
-            
-        # If Untergruppe_1 exists but not Untergruppe_2, parent is Gruppe + Untergruppe_1
-        # TODO This was not what I meant; I may need to change this in the future to 
-        # be able to get all hierarchy levels; could be an option to this methods
-        # immediate parent, all ancestors, etc. - have to see how it is going to be used
-        # in the pipeline later on and redo accordingly
-        if pd.isna(tag_info['Untergruppe_2']):
-            return f"{gruppe}-{untergruppe_1}"
-            
-        # If all three exist, parent is Gruppe + Untergruppe_1
-        return f"{gruppe}-{untergruppe_1}"
+        parent = self.tags_df.loc[(self.tags_df['Gruppe'] == tag_info['Gruppe']) & (self.tags_df['hierarchy'] == 'section')]
+        # TODO fix as needed later
+
+        return parent['tag'].to_string()
     
     def get_children(self, tag_name: str) -> List[str]:
         """
