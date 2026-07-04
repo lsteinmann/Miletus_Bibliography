@@ -55,8 +55,11 @@ class ZoteroClient:
         }
         
         # Set format parameter based on type
-        if format_type != "csv":
+        format_types = frozenset(["csv", "json", "biblatex", "bibtex", "ris"])
+        if format_type in format_types:
             params['format'] = format_type
+        else: 
+            raise Exception(f"Format must be one of {format_types}")
         
         try:
             response = requests.get(
