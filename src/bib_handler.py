@@ -6,14 +6,14 @@ from bibtexparser.customization import homogenize_latex_encoding, convert_to_uni
 # I cannot remember why these processes were different and I do not know how
 # I should find out. 
 
-class BibCleaner:
+class BibHandler:
     """
     Loads and cleans BibTeX and BibLaTeX files to e.g. fix characters and formats.
     """
     def __init__(self):
         print("Hi.")
 
-    def clean_bibtex(self, filename):
+    def clean_bibtex_file(self, filename):
         with open(filename, encoding="utf8") as file:
             parser = BibTexParser()
             parser.encoding = "utf-8"
@@ -22,14 +22,18 @@ class BibCleaner:
             parser.common_strings = False
             parser.customization = homogenize_latex_encoding
             bib_database = bibtexparser.load(file, parser=parser)
+
         # print(bib_database.entries)
         writer = BibTexWriter()
         writer.order_entries_by=None
         writer.display_order
-        with open(filename, 'w', encoding='utf-8') as bibfile:
-            bibfile.write(writer.write(bib_database))
+        try: 
+            with open(filename, 'w', encoding='utf-8') as bibfile:
+                bibfile.write(writer.write(bib_database))
+        except Exception as e:
+            print(f"Error cleaning BibLaTeX file {filename}: {e}")
 
-    def clean_biblatex(self, filename):
+    def clean_biblatex_file(self, filename):
         with open(filename, encoding="utf8") as file:
             parser = BibTexParser()
             parser.encoding = "utf-8"
@@ -41,8 +45,11 @@ class BibCleaner:
         # print(bib_database.entries)
         writer = BibTexWriter()
         writer.order_entries_by = None #('author', 'year')
-        with open(filename, 'w', encoding='utf-8') as bibfile:
-            bibfile.write(writer.write(bib_database))
+        try: 
+            with open(filename, 'w', encoding='utf-8') as bibfile:
+                bibfile.write(writer.write(bib_database))
+        except Exception as e:
+            print(f"Error cleaning BibLaTeX file {filename}: {e}")
 
 
 

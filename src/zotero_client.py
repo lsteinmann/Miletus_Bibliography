@@ -2,7 +2,6 @@ import requests
 import time
 from typing import List, Dict, Any
 import pandas as pd
-import os
 
 class ZoteroClient:
     """
@@ -136,8 +135,10 @@ class ZoteroClient:
             str: Combined CSV data
         """
         responses = self._fetch_items("csv", limit = limit)
+        result = '\n'.join(responses)
+        self.csv_data = result
 
-        return '\n'.join(responses)
+        return result 
     
     def get_json(self, limit: int = 0) -> List[Dict[str, Any]]:
         """
@@ -149,7 +150,10 @@ class ZoteroClient:
         responses = self._fetch_items("json", limit = limit)
         # In a real implementation, you'd parse JSON here
         # For now, returning raw responses as strings
-        return '\n'.join(responses)
+        result = '\n'.join(responses)
+        self.json_data = result
+
+        return result
     
     def get_biblatex(self, limit: int = 0) -> str:
         """
@@ -159,7 +163,9 @@ class ZoteroClient:
             str: Combined BibLaTeX data
         """
         responses = self._fetch_items("biblatex", limit = limit)
-        return '\n'.join(responses)
+        result = '\n'.join(responses)
+
+        return result
     
     def get_bibtex(self, limit: int = 0) -> str:
         """
@@ -169,7 +175,9 @@ class ZoteroClient:
             str: Combined BibTeX data
         """
         responses = self._fetch_items("bibtex", limit = limit)
-        return '\n'.join(responses)
+        result = '\n'.join(responses)
+
+        return result
     
     def get_ris(self, limit: int = 0) -> str:
         """
@@ -179,45 +187,16 @@ class ZoteroClient:
             str: Combined RIS data
         """
         responses = self._fetch_items("ris", limit = limit)
-        return '\n'.join(responses)
+        result = '\n'.join(responses)
 
-    def get_and_export_data(self, limit: int = 0) -> None:
-        """
-        Get all items in all defined export formats and write to files.
-        
-        Returns:
-            Nothing
-        """
-        # Yeah, I know this is a bit silly.
-        for format in self.format_types:
-            match format:
-                case "csv":
-                    data = self.get_csv(limit = limit)
-                    self.csv_data = data
-                    filename = "data/Milet_Bibliography_CSV_v2.csv"
-                case "json": 
-                    data = zotero.get_json(limit = limit)
-                    self.json_data = data
-                    filename = "data/Milet_Bibliography_JSON_v2.json"
-                case "biblatex":
-                    data = zotero.get_biblatex(limit = limit)
-                    filename = "data/Milet_Bibliography_BibLaTeX_v2.bib"
-                case "bibtex":
-                    data = zotero.get_bibtex(limit = limit)
-                    filename = "data/Milet_Bibliography_BibTeX_v2.bib"
-                case "ris":
-                    data = zotero.get_ris(limit = limit)
-                    filename = "data/Milet_Bibliography_RIS_v2.ris"
+        return result
 
-            with open(filename, "w", encoding="utf-8") as f:
-                f.write(data)
-            print(f"{limit} items written to {filename}")
-
-
+    
 # Example usage:
 if __name__ == "__main__":
     # Initialize the Zotero client
     zotero = ZoteroClient()
 
     # Get and save the bibliography: 
-    zotero.get_and_export_data(limit=200)
+    csv = zotero.get_csv(limit=10)
+    print(csv)
