@@ -42,6 +42,9 @@ class LatexGenerator:
         sections_file = open("out/bibsections_by_year.tex", "w")
         bibcheck_file = open("out/defbibcheck_by_year.tex", "w")
         years = []
+        # TODO : actually this sucks, because the bib file will not 
+        # have all years in there correctly, so they will not be in the
+        # pdf.
         pattern = re.compile(r'\b(\d{4})\b')
         for x in self.data:
             val = x.get('date', '')
