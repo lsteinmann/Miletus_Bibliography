@@ -70,6 +70,34 @@ class LatexGenerator:
             bibcheck_file.writelines("  {\\skipentry}}\n\n\n")
         sections_file.close()
     
+    def get_list_of_authors(self):
+        authors = []
+        for x in self.data:
+            creators = x.get('creators', '')
+            for y in creators:
+                authors.append(y)
+        authors = pd.DataFrame(authors)
+        unique_names = (
+            authors.drop(columns=['creatorType', 'name'])
+            .groupby(['firstName', 'lastName'], as_index=False)
+            .size()
+            .drop_duplicates(subset=['firstName', 'lastName'])
+            .reset_index()
+        )
+        def transliterate_non_turkish(text):
+            if pd.isna(text):
+                return text
+            # Keep Turkish chars, transliterate others
+            turkish_chars = set('ığüöçşİĞÜÖÇŞ')
+            return ''.join(char if char in turkish_chars else unidecode(char) for char in text)
+
+        unique_names['firstName_lat'] = unique_names['firstName'].apply(transliterate_non_turkish)
+        unique_names['lastName_lat'] = unique_names['lastName'].apply(transliterate_non_turkish)
+        unique_names = unique_names.sort_values(by=['lastName_lat', 'firstName_lat'])
+        unique_names['letter'] = unique_names['lastName_lat'].str[0].str.upper()
+
+        return(unique_names)
+
     def generate_by_author(self, output_path: str = "out/bibstructure_by_author.tex") -> str:
         """
         Generate LaTeX structure by author.
@@ -80,70 +108,22 @@ class LatexGenerator:
         Returns:
             str: Generated LaTeX content
         """
-        # Get all authors and split them
-        authors = self.bib_df['Author'].dropna().tolist()
-        author_lists = [author.split('; ') if pd.notna(author) else [] for author in authors]
-        
-        # Flatten and get unique authors
-        all_authors = []
-        for author_list in author_lists:
-            all_authors.extend(author_list)
-        
-        # Remove duplicates and sort
-        unique_authors = sorted(set(all_authors), key=lambda x: x.lower())
-        
-        # Group by first letter (using Turkish locale for sorting)
-        author_groups = {}
-        for author in unique_authors:
-            first_letter = author[0].upper() if author else ''
-            if first_letter not in author_groups:
-                author_groups[first_letter] = []
-            author_groups[first_letter].append(author)
-        
-        # Sort letters
-        sorted_letters = sorted(author_groups.keys())
-        
-        # Generate content
-        bibstructure_lines = []
-        
-        for letter in sorted_letters:
-            # Section for letter
-            bibstructure_lines.append(f"\\section{{{letter}}}\n")
-            
-            # For each author in this letter group
-            for author in author_groups[letter]:
-                # Find all entries for this author
-                author_mask = self.bib_df['Author'].str.contains(f'^{re.escape(author)}$', 
-                                                                regex=True, na=False)
-                author_entries = self.bib_df[author_mask]
-                
-                if not author_entries.empty:
-                    # Sort by year then title
-                    author_entries = author_entries.sort_values(['Publication.Year', 'Title'], 
-                                                               key=lambda x: x.apply(lambda y: str(y).lower()))
-                    
-                    # Get citation keys
-                    citation_keys = author_entries['citationKey'].tolist()
-                    num_pubs = len(citation_keys)
-                    
-                    # Build citation lines
-                    citation_lines = [f"\\fullcite{{{key}}}" for key in citation_keys]
-                    citation_content = "\n\n".join(citation_lines)
-                    
-                    # Section header with publication count
-                    section_header = (f"\\subsection[{author} ({num_pubs})]{{{author}}}\n")
-                    bibstructure_lines.append(section_header)
-                    bibstructure_lines.append(citation_content)
-                    bibstructure_lines.append("\n")
-        
-        # Save content
-        content = "".join(bibstructure_lines)
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(content)
-        print(f"Saved: {output_path}")
-        
-        return content
+        authors = self.get_list_of_authors()
+        print(authors)
+
+        file = open("out/bibstructure_by_author_v2.tex", "w")
+
+        letters = set(authors['letter'])
+        letters = sorted(letters)
+        for letter in letters:
+            file.writelines(f"\\section{{{letter}}}\n\n")
+            subset = authors[authors['letter'] == letter]
+            for _, row in subset.iterrows():
+                file.writelines(f"\\subsection[{row['lastName_lat']}, {row['firstName_lat']} ({row['size']})]{{{row['lastName_lat']}, {row['firstName_lat']}}}\n")
+
+            #print(authors.loc[authors['letter'] == letter])
+        file.close()
+
     
     def generate_by_tag(self, output_path: str = "out/bibstructure_by_keyword.tex") -> str:
         """
