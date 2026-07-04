@@ -2,6 +2,7 @@ import requests
 import time
 from typing import List, Dict, Any
 import pandas as pd
+import json
 
 class ZoteroClient:
     """
@@ -152,12 +153,14 @@ class ZoteroClient:
         Returns:
             List[Dict[str, Any]]: List of JSON objects
         """
+        all_items = []
         responses = self._fetch_items("json", limit = limit)
-        # In a real implementation, you'd parse JSON here
-        # For now, returning raw responses as strings
-        result = '\n'.join(responses)
-        self.json_data = result
-
+        for response in responses:
+            data = json.loads(response)
+            all_items.extend(data)
+    
+        self.json_data = all_items
+        result = json.dumps(all_items, ensure_ascii=False, sort_keys=True)
         return result
     
     def get_biblatex(self, limit: int = 0) -> str:
