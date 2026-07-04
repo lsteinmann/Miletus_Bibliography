@@ -234,17 +234,17 @@ if __name__ == "__main__":
 
     print("\n -------------------------------------------------------------------")
     
-    print("An example section head for the LaTeX template:\n")
+    print("An example section head for the LaTeX template using the tag '02-01 Topographie: Prähistorisch':\n")
     test_tag = "02-01 Topographie: Prähistorisch"
     latex_section = tag_client.get_latex_section(test_tag)
     print(f"LaTeX section for {test_tag}: \n {latex_section}")
     
     print("\n -------------------------------------------------------------------")
-    print("An example of the 'get_parent'-method:\n")
+    print("An example of the 'get_parent'-method using the tag '02-01 Topographie: Prähistorisch':\n")
     parent = tag_client.get_parent(test_tag)
-    print(f"Parent of {test_tag}: {parent}")
+    print(f"Parent of {test_tag}: \n {parent}")
     
     print("\n -------------------------------------------------------------------")
-    print("An example of the 'get_children'-method:\n")
+    print("An example of the 'get_children'-method using the Tag '02 Allgemeine Darstellungen / Topographie' :\n")
     children = tag_client.get_children("02 Allgemeine Darstellungen / Topographie")
     print(f"Children of top-level tag: {children}")
