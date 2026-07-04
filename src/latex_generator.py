@@ -59,15 +59,15 @@ class LatexGenerator:
         for year in years:
             # Find all entries where date matches the current year
             matching_entries = [entry for entry in self.data if entry.get("date") == year]
-            sections_file.writelines(f"\section*{{{year}}}\n")
+            sections_file.writelines(f"\\section*{{{year}}}\n")
             sections_file.writelines(f"\\addcontentsline{{toc}}{{section}}{{{year}}}%\n")
-            sections_file.writelines(f"\printbibliography[check=yr{year},heading=none, env=compactbib]\n")
-            bibcheck_file.writelines(f"\defbibcheck{{yr{year}}}{{%\n")
-            bibcheck_file.writelines("  \iffieldint{year}\n")
-            bibcheck_file.writelines("  {\ifnumequal{\\thefield{year}}{" + year + "}\n")
+            sections_file.writelines(f"\\printbibliography[check=yr{year},heading=none, env=compactbib]\n")
+            bibcheck_file.writelines(f"\\defbibcheck{{yr{year}}}{{%\n")
+            bibcheck_file.writelines("  \\iffieldint{year}\n")
+            bibcheck_file.writelines("  {\\ifnumequal{\\thefield{year}}{" + year + "}\n")
             bibcheck_file.writelines("    {}\n")
-            bibcheck_file.writelines("    {\skipentry}}\n")
-            bibcheck_file.writelines("  {\skipentry}}\n\n\n")
+            bibcheck_file.writelines("    {\\skipentry}}\n")
+            bibcheck_file.writelines("  {\\skipentry}}\n\n\n")
         sections_file.close()
     
     def generate_by_author(self, output_path: str = "out/bibstructure_by_author.tex") -> str:
