@@ -40,3 +40,23 @@ The bibliography has been offered as a [PDF version for download](https://doi.or
 
 ## Context
 The scripts and LaTeX-files were produced during my work for the [Miletus Excavation](https://www.miletgrabung.uni-hamburg.de/) in the course of the DFG/ANR-funded project ["Life Forms in the Megapolis: Miletus in the Longue Durée"](https://www.kulturwissenschaften.uni-hamburg.de/ka/forschung/lebensformen-megapolis.html). 
+
+
+# Development and Usage
+
+Start by setting up the virtual environment with python:
+
+```python 
+python3 - m venv venv
+source venv/bin/activate
+```
+
+Install the required libraries: 
+
+```
+pip install -r requirements.txt
+```
+
+
+# Tools
+Some of the code has been ported from R to python using Qwen 3 Coder along my mental model of the project. I made this transparent in the commit messages. Granular cleanup and changes are human-made if not stated otherwise. 
