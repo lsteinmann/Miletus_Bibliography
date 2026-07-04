@@ -9,31 +9,18 @@ class ZoteroClient:
     Handles pagination and different export formats.
     """
     
-    def __init__(self, group_id: str = "4475959", api_key: str = None):
+    def __init__(self, group_id: str = "4475959"):
         """
         Initialize the ZoteroClient.
         
         Args:
             group_id (str): Zotero group ID
-            api_key (str): Zotero API key (optional, can be set via environment)
         """
         self.group_id = group_id
-        self.api_key = api_key or self._get_api_key_from_env()
         self.base_url = f"https://api.zotero.org/groups/{group_id}/items"
         self.headers = {
-            'Zotero-API-Key': self.api_key,
             'Accept': 'application/json'
         }
-    
-    def _get_api_key_from_env(self) -> str:
-        """
-        Get API key from environment variable (you can implement this as needed).
-        For now, returns a placeholder - you'll need to implement actual env reading.
-        """
-        # In production, you'd read from environment:
-        # import os
-        # return os.getenv('ZOTERO_API_KEY')
-        return "YOUR_API_KEY_HERE"  # Placeholder
     
     def _get_total_items(self) -> int:
         """
