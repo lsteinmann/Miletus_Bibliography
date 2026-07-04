@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 
 class TagClient:
     """
@@ -181,22 +181,39 @@ class TagClient:
             
         return tag_row.iloc[0].to_dict()
     
-    def get_hierarchy_level(self, tag_name: str) -> Optional[str]:
+    def get_hierarchy_level(self, tag_names: Union[str, List[str]]) -> Optional[Union[str, List[str]]]:
         """
-        Get the hierarchy level (section, subsection, subsubsection) of a tag.
-        
+        Get the hierarchy level(s) for one or more tag names.
+
         Args:
-            tag_name (str): The tag name to check
-            
+            tag_names (str or list): A single tag name or a list of tag names
+
         Returns:
-            Optional[str]: Hierarchy level or None if not found
+            Optional[str or list]: Hierarchy level(s) or None if not found.
+            - If input is a str → returns str or None
+            - If input is a list → returns list of str or None values (in same order)
         """
-        tag_row = self.tags_df[self.tags_df['tag'] == tag_name]
-        
-        if tag_row.empty:
-            return None
-            
-        return tag_row.iloc[0]['hierarchy']
+        # Handle single string input
+        if isinstance(tag_names, str):
+            tag_names = [tag_names]  # Convert to list for uniform processing
+
+        # Find matching rows in the DataFrame
+        matches = self.tags_df[self.tags_df['tag'].isin(tag_names)]
+
+        # Extract hierarchy levels, preserving order
+        levels = []
+        for tag in tag_names:
+            row = matches[matches['tag'] == tag]
+            if row.empty:
+                levels.append(None)
+            else:
+                levels.append(row.iloc[0]['hierarchy'])
+
+        # Return single value if input was a string, otherwise return list
+        if isinstance(tag_names, str):
+            return levels[0]  # Return single value
+        else:
+            return levels  # Return list of values
 
 # Example usage // Test demo:
 if __name__ == "__main__":
