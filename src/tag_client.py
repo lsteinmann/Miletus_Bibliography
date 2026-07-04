@@ -31,11 +31,18 @@ class TagClient:
             dtype=str
         )
         
-        # Remove rows where ALL values are missing/empty
+        # The csv-file is supposed to be very human-readable, thus some rows
+        # are completely empty, providing some good visual divisions for people
+        # editing it / filling in more tags. 
+        # We need to remove them here to be able to process the file, though:
         mask_all_na = self.tags_df.isnull().all(axis=1)
         self.tags_df = self.tags_df[~mask_all_na]
         
-        # Create the 'tag' column by combining hierarchical tags
+        # The tags are recorded in the zotero group database in a specific way, 
+        # by combining the numbers with the (german!) titles of groups and 
+        # their sub-groups, which we need to arrange again here, since I 
+        # did not want duplication in the table itself. That may not have been a
+        # wise choice, in hindsight. 
         self.tags_df['tag'] = (
             self.tags_df['Gruppe'].fillna('') + "-" + 
             self.tags_df['Untergruppe_1'].fillna('') + "-" + 
@@ -43,23 +50,22 @@ class TagClient:
             self.tags_df['DE'].fillna('')
         )
         
-        # Clean up the tag string by removing unwanted patterns
-        self.tags_df['tag'] = self.tags_df['tag'].str.replace('-NA', '', regex=False)
+        # Remove unwanted patterns from the tag string
         self.tags_df['tag'] = self.tags_df['tag'].str.replace('--', '', regex=False)
         self.tags_df['tag'] = self.tags_df['tag'].str.replace('- ', ' ', regex=False)
         
-        # Create the 'sys' column to determine hierarchy level
+        # Create the 'hierarchy' column for quick access to hierarchy level
         # Section: Gruppe only (both Untergruppe_1 and Untergruppe_2 are NA)
         condition1 = self.tags_df['Untergruppe_1'].isna() & self.tags_df['Untergruppe_2'].isna()
-        self.tags_df['sys'] = np.where(condition1, 'section', None)
+        self.tags_df['hierarchy'] = np.where(condition1, 'section', None)
         
         # Subsection: Gruppe and Untergruppe_1 present, Untergruppe_2 is NA
         condition2 = ~self.tags_df['Untergruppe_1'].isna() & self.tags_df['Untergruppe_2'].isna()
-        self.tags_df['sys'] = np.where(condition2, 'subsection', self.tags_df['sys'])
+        self.tags_df['hierarchy'] = np.where(condition2, 'subsection', self.tags_df['hierarchy'])
         
         # Subsubsection: All three levels present
         condition3 = ~self.tags_df['Untergruppe_1'].isna() & ~self.tags_df['Untergruppe_2'].isna()
-        self.tags_df['sys'] = np.where(condition3, 'subsubsection', self.tags_df['sys'])
+        self.tags_df['hierarchy'] = np.where(condition3, 'subsubsection', self.tags_df['hierarchy'])
     
     def get_latex_section(self, tag_name: str) -> Optional[str]:
         """
@@ -78,8 +84,11 @@ class TagClient:
             return None
             
         tag_info = tag_row.iloc[0]
-        section_type = tag_info['sys']
-        display_name = tag_info['DE']  # Using German as default
+        section_type = tag_info['hierarchy']
+        # Here we have the future option to make multi-lingual
+        # pdf-files out of this. 
+        display_name = tag_info['DE'] 
+        ## TODO
         
         # Remove the prefix (like "01 ", "02 ", etc.) for display name
         clean_display_name = display_name.split(": ", 1)[-1] if ": " in display_name else display_name
@@ -117,6 +126,10 @@ class TagClient:
             return None
             
         # If Untergruppe_1 exists but not Untergruppe_2, parent is Gruppe + Untergruppe_1
+        # TODO This was not what I meant; I may need to change this in the future to 
+        # be able to get all hierarchy levels; could be an option to this methods
+        # immediate parent, all ancestors, etc. - have to see how it is going to be used
+        # in the pipeline later on and redo accordingly
         if pd.isna(tag_info['Untergruppe_2']):
             return f"{gruppe}-{untergruppe_1}"
             
@@ -206,25 +219,32 @@ class TagClient:
         if tag_row.empty:
             return None
             
-        return tag_row.iloc[0]['sys']
+        return tag_row.iloc[0]['hierarchy']
 
-# Example usage:
+# Example usage // Test demo:
 if __name__ == "__main__":
     # Initialize the tag client
     tag_client = TagClient()
     
-    # Test some methods
-    print("All tags:", tag_client.get_all_tags()[:5])  # Show first 5
+    print("This is the TagClient for Miletus Bibliography.")
+    print("This is printed so you can manually check if I am behaving correctly.")
+    print("\n -------------------------------------------------------------------")
+    print("All tags found in the current csv:\n")
+    print(tag_client.get_all_tags())
+
+    print("\n -------------------------------------------------------------------")
     
-    # Test getting LaTeX section
+    print("An example section head for the LaTeX template:\n")
     test_tag = "02-01 Topographie: Prähistorisch"
     latex_section = tag_client.get_latex_section(test_tag)
-    print(f"LaTeX section for {test_tag}: {latex_section}")
+    print(f"LaTeX section for {test_tag}: \n {latex_section}")
     
-    # Test getting parent
+    print("\n -------------------------------------------------------------------")
+    print("An example of the 'get_parent'-method:\n")
     parent = tag_client.get_parent(test_tag)
     print(f"Parent of {test_tag}: {parent}")
     
-    # Test getting children
+    print("\n -------------------------------------------------------------------")
+    print("An example of the 'get_children'-method:\n")
     children = tag_client.get_children("02 Allgemeine Darstellungen / Topographie")
-    print(f"Children of top-level tag: {children[:3]}...")  # Show first 3
+    print(f"Children of top-level tag: {children}")
