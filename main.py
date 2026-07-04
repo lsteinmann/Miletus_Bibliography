@@ -40,20 +40,19 @@ if __name__ == "__main__":
     # We get and save the bibliography here. 
     # RIS is the format that needs least processing:
     ris = zotero.get_ris(limit = limit)
-    filename = "data/Milet_Bibliography_RIS_v2.ris"
+    filename = "data/Milet_Bibliography_RIS.ris"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(ris)
     print(f"Written data to {filename}.")
 
     json = zotero.get_json(limit = limit)    
-    filename = "data/Milet_Bibliography_JSON_v2.json"
+    filename = "data/Milet_Bibliography_JSON.json"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(json)
     print(f"Written data to {filename}.")
-    citation_keys = extract_citation_keys(zotero.json_data)
     
     csv = zotero.get_csv(limit = limit)
-    filename = "data/Milet_Bibliography_CSV_v2.csv"
+    filename = "data/Milet_Bibliography_CSV.csv"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(csv)
     print(f"Written data to {filename}.")
@@ -66,7 +65,7 @@ if __name__ == "__main__":
     # with LaTeX.
     bib_handler = BibHandler()
     biblatex = zotero.get_biblatex(limit = limit)
-    filename = "data/Milet_Bibliography_BibLaTeX_v2.bib"
+    filename = "data/Milet_Bibliography_BibLaTeX.bib"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(biblatex)
     print(f"Written data to {filename}")
@@ -74,7 +73,7 @@ if __name__ == "__main__":
     print(f"Cleaned {filename} for compatibility.")
     
     bibtex = zotero.get_bibtex(limit = limit)
-    filename = "data/Milet_Bibliography_BibTeX_v2.bib"
+    filename = "data/Milet_Bibliography_BibTeX.bib"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(bibtex)
     print(f"Written data to {filename}")
@@ -82,6 +81,5 @@ if __name__ == "__main__":
     print(f"Cleaned {filename} for compatibility.")
 
     tags = TagClient()
-    
-    
+    citation_keys = extract_citation_keys(zotero.json_data)
     
