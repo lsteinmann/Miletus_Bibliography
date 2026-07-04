@@ -11,7 +11,7 @@ class BibHandler:
     Loads and cleans BibTeX and BibLaTeX files to e.g. fix characters and formats.
     """
     def __init__(self):
-        print("Hi.")
+        print("Initialized BibHandler.")
 
     def clean_bibtex_file(self, filename):
         with open(filename, encoding="utf8") as file:
