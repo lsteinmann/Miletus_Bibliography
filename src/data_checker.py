@@ -52,12 +52,6 @@ class DataChecker:
             if item_data.get('itemType') == 'note': 
                 pass
             else: 
-                item_tags = []
-                for tag in item_data.get('tags', []):
-                    item_tags.append({
-                        'tag': tag.get('tag', ''),
-                        'level': self.tags.get_hierarchy_level(tag.get('tag', ''))
-                    })
                 meta = item.get('meta')
                 creator = meta.get('createdByUser')
                 items.append({
@@ -65,8 +59,7 @@ class DataChecker:
                     'citationKey': item_data.get('citationKey', pd.NA),
                     'dateAdded': item_data.get('dateAdded', pd.NA),
                     'title': item_data.get('title', pd.NA),
-                    'createdBy': creator.get('username', pd.NA),
-                    'tags': item_tags
+                    'createdBy': creator.get('username', pd.NA)
                 })
         return pd.DataFrame(items)
 
@@ -94,15 +87,51 @@ class DataChecker:
     
     def find_items_without_tags(self): 
         missing_tags = []
-        for _, item in self.clean_items.iterrows():
-            tags = item['tags']
-            all_none = all(tag.get('level') is None for tag in tags)
-            if all_none and len(tags) > 0:
-                missing_tags.append(item['Key'])
+        for item in self.items:
+            data = item.get('data', [])
+            if data.get('itemType', '') != 'note':
+                tags = [tag['tag'] for tag in data.get('tags', [])]
+                levels = self.tags.get_hierarchy_level(tags)
+                all_none = all(x is None for x in levels)
+                if len(levels) == 0 or all_none: 
+                    missing_tags.append(item.get('key', ''))
+                #if item.get('key') == 'ITC7FWJX': 
+                #    break
         if len(missing_tags) > 0:
             self.log(f"Found {len(missing_tags)} items without systematic tags:")
             result = self.clean_items.loc[(self.clean_items['Key'].isin(missing_tags))]
             self.log(result)
+        else:
+            self.log("All items have at least one systematic tag. Good Job.")
+    
+    def find_items_without_precise_tags(self): 
+        missing_precise_tags = []
+        for item in self.items:
+            data = item.get('data', [])
+            if data.get('itemType', '') != 'note':
+                tags = [tag['tag'] for tag in data.get('tags', [])]
+                levels = self.tags.get_hierarchy_level(tags)
+                target_levels = {'subsection', 'subsubsection'}
+                has_precise = any(x in target_levels for x in levels)
+                if has_precise == False: 
+                    missing_precise_tags.append(item.get('key', ''))
+                if item.get('key') == 'ITC7FWJX': 
+                    break
+        if len(missing_precise_tags) > 0:
+            self.log(f"Found {len(missing_precise_tags)} items without precise systematic tags:")
+            result = self.clean_items.loc[(self.clean_items['Key'].isin(missing_precise_tags))]
+            self.log(result)
+            self.log("Consider reviewing them, maybe you can tag them better.")
+        else:
+            self.log("All items have at least one precise systematic tag. Good Job.")
+    
+    def check_all(self): 
+        self.find_missing_citation_keys()
+        self.find_duplicate_citation_keys()
+        self.find_items_without_tags()
+        # I think we dont need it.
+        #self.find_items_without_precise_tags()
+
 
 # Example usage:
 if __name__ == "__main__":
@@ -114,7 +143,13 @@ if __name__ == "__main__":
 
     tags = TagClient()
     
+
     data_checker = DataChecker(data, tags, "out/check_result.log")
-    data_checker.find_missing_citation_keys()
-    data_checker.find_duplicate_citation_keys()
-    data_checker.find_items_without_tags()
+    
+    data_checker.check_all()
+    
+    #data_checker.find_missing_citation_keys()
+    #data_checker.find_duplicate_citation_keys()
+    #data_checker.find_items_without_tags()
+    
+    # data_checker.find_items_without_precise_tags()
