@@ -82,12 +82,13 @@ class ZoteroClient:
             print(f"Error fetching items starting at {start_index}: {e}")
             raise
     
-    def _fetch_all_items(self, format_type: str = "csv") -> List[str]:
+    def _fetch_items(self, format_type: str = "csv", limit: int = 0) -> List[str]:
         """
         Generalized internal method to fetch all items in batches.
         
         Args:
             format_type (str): Format type to fetch
+            limit (int): 0 means no limit, otherwise sets the maximum of items to fetch
             
         Returns:
             List[str]: List of raw response texts for each batch
@@ -95,15 +96,20 @@ class ZoteroClient:
         # Get total items count
         total_items = self._get_total_items()
         print(f"Found {total_items} items in Zotero library")
+
+        if limit == 0:
+            fetch_limit = total_items
+        else: 
+            fetch_limit = limit
         
         # Generate sequence for batching
         batch_size = 100
-        sequences = list(range(0, total_items, batch_size))
+        sequences = list(range(0, fetch_limit, batch_size))
         
         all_responses = []
         
         for i, start_index in enumerate(sequences):
-            print(f"Fetching batch {i+1}/{len(sequences)} (items {start_index}-{min(start_index+batch_size, total_items)})")
+            print(f"Fetching batch {i+1}/{len(sequences)} (items {start_index}-{min(start_index+batch_size, fetch_limit)})")
             
             try:
                 response_data = self._fetch_items_batch(start_index, format_type)
@@ -119,56 +125,57 @@ class ZoteroClient:
         
         return all_responses
     
-    def get_csv(self) -> str:
+    def get_csv(self, limit: int = 0) -> str:
         """
         Get all items in CSV format.
         
         Returns:
             str: Combined CSV data
         """
-        responses = self._fetch_all_items("csv")
+        responses = self._fetch_items("csv", limit = limit)
+
         return '\n'.join(responses)
     
-    def get_json(self) -> List[Dict[str, Any]]:
+    def get_json(self, limit: int = 0) -> List[Dict[str, Any]]:
         """
         Get all items in JSON format.
         
         Returns:
             List[Dict[str, Any]]: List of JSON objects
         """
-        responses = self._fetch_all_items("json")
+        responses = self._fetch_items("json", limit = limit)
         # In a real implementation, you'd parse JSON here
         # For now, returning raw responses as strings
         return responses
     
-    def get_biblatex(self) -> str:
+    def get_biblatex(self, limit: int = 0) -> str:
         """
         Get all items in BibLaTeX format.
         
         Returns:
             str: Combined BibLaTeX data
         """
-        responses = self._fetch_all_items("biblatex")
+        responses = self._fetch_items("biblatex", limit = limit)
         return '\n'.join(responses)
     
-    def get_bibtex(self) -> str:
+    def get_bibtex(self, limit: int = 0) -> str:
         """
         Get all items in BibTeX format.
         
         Returns:
             str: Combined BibTeX data
         """
-        responses = self._fetch_all_items("bibtex")
+        responses = self._fetch_items("bibtex", limit = limit)
         return '\n'.join(responses)
     
-    def get_ris(self) -> str:
+    def get_ris(self, limit: int = 0) -> str:
         """
         Get all items in RIS format.
         
         Returns:
             str: Combined RIS data
         """
-        responses = self._fetch_all_items("ris")
+        responses = self._fetch_items("ris", limit = limit)
         return '\n'.join(responses)
 
 # Example usage:
@@ -179,5 +186,4 @@ if __name__ == "__main__":
     print("Zotero Client initialized successfully!")
     
     # Example of how to use it (uncomment to test):
-    # csv_data = zotero.get_csv()
-    # print(f"Got CSV data with {len(csv_data)} characters")
+    csv_data = zotero.get_csv(limit = 100)
