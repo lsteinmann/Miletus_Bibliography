@@ -143,30 +143,17 @@ class TagClient:
             return []
             
         tag_info = tag_row.iloc[0]
-        gruppe = tag_info['Gruppe']
-        untergruppe_1 = tag_info['Untergruppe_1']
-        untergruppe_2 = tag_info['Untergruppe_2']
+        if tag_info['hierarchy'] == 'section': 
+            children = self.tags_df.loc[(self.tags_df['Gruppe'] == tag_info['Gruppe'])]
+            children = children.loc[(children['hierarchy'] != 'section')]
+        if tag_info['hierarchy'] == 'subsection': 
+            children = self.tags_df.loc[(self.tags_df['Gruppe'] == tag_info['Gruppe']) & (self.tags_df['Untergruppe_1'] == tag_info['Untergruppe_1'])]
+            children = children.loc[(children['hierarchy'] != 'section')]
+            children = children.loc[(children['hierarchy'] != 'subsection')]
+        if tag_info['hierarchy'] == 'subsubsection': 
+            children = None
         
-        # Filter for children based on hierarchy
-        if pd.isna(untergruppe_1) and pd.isna(untergruppe_2):
-            # This is a top-level section, find all children
-            children_mask = (
-                (self.tags_df['Gruppe'] == gruppe) &
-                (~self.tags_df['Untergruppe_1'].isna()) &
-                (self.tags_df['Untergruppe_2'].isna())
-            )
-            return self.tags_df[children_mask]['tag'].tolist()
-        elif pd.notna(untergruppe_1) and pd.isna(untergruppe_2):
-            # This is a subsection, find all children
-            children_mask = (
-                (self.tags_df['Gruppe'] == gruppe) &
-                (self.tags_df['Untergruppe_1'] == untergruppe_1) &
-                (~self.tags_df['Untergruppe_2'].isna())
-            )
-            return self.tags_df[children_mask]['tag'].tolist()
-        else:
-            # This is a subsubsection or has no children
-            return []
+        return children['tag'].tolist()
     
     def get_all_tags(self) -> List[str]:
         """
@@ -235,6 +222,21 @@ if __name__ == "__main__":
     print(f"Parent of {test_tag}: \n {parent}")
     
     print("\n -------------------------------------------------------------------")
+    print("An example of the 'get_parent'-method using the tag '03-05-09 Keramik: Mittelalter':\n")
+    parent = tag_client.get_parent(test_tag)
+    print(f"Parent of {test_tag}: \n {parent}")
+    
+    print("\n -------------------------------------------------------------------")
     print("An example of the 'get_children'-method using the Tag '02 Allgemeine Darstellungen / Topographie' :\n")
     children = tag_client.get_children("02 Allgemeine Darstellungen / Topographie")
+    print(f"Children of top-level tag: {children}")
+
+    print("\n -------------------------------------------------------------------")
+    print("An example of the 'get_children'-method using the Tag '03 Funde aus Milet' :\n")
+    children = tag_client.get_children("03 Funde aus Milet")
+    print(f"Children of top-level tag: {children}")
+
+    print("\n -------------------------------------------------------------------")
+    print("An example of the 'get_children'-method using the Tag '03-05 Funde: Keramik' :\n")
+    children = tag_client.get_children("03-05 Funde: Keramik")
     print(f"Children of top-level tag: {children}")
