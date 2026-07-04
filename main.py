@@ -13,16 +13,19 @@ if __name__ == "__main__":
     filename = "data/Milet_Bibliography_RIS_v2.ris"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(ris)
+    print(f"Written data to {filename}.")
 
     csv = zotero.get_csv(limit = limit)
     filename = "data/Milet_Bibliography_CSV_v2.csv"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(csv)
+    print(f"Written data to {filename}.")
     
     json = zotero.get_json(limit = limit)    
     filename = "data/Milet_Bibliography_JSON_v2.json"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(json)
+    print(f"Written data to {filename}.")
     
     
     # BibTeX and BibLaTeX need some cleaning up, as there are many 
@@ -35,13 +38,17 @@ if __name__ == "__main__":
     filename = "data/Milet_Bibliography_BibLaTeX_v2.bib"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(biblatex)
+    print(f"Written data to {filename}")
     bib_handler.clean_biblatex_file(filename)
+    print(f"Cleaned {filename} for compatibility.")
     
     bibtex = zotero.get_bibtex(limit = limit)
     filename = "data/Milet_Bibliography_BibTeX_v2.bib"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(bibtex)
+    print(f"Written data to {filename}")
     bib_handler.clean_bibtex_file(filename)
+    print(f"Cleaned {filename} for compatibility.")
 
     tags = TagClient()
     
