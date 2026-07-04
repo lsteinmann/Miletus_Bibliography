@@ -73,6 +73,10 @@ if __name__ == "__main__":
     print("------------------------- Let's go. -----------------------------------")
     print("-----------------------------------------------------------------------\n")
     data_checker = DataChecker(zotero.json_data, logfile="out/check_result.log")
+    
+    data_checker.find_missing_citation_keys()
+    data_checker.find_duplicate_citation_keys()
+    data_checker.find_items_without_tags()
 
 
 
