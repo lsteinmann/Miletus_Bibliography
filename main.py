@@ -1,24 +1,27 @@
 import os
+from typing import List, Dict, Any
+
 from src.tag_client import TagClient
 from src.zotero_client import ZoteroClient
 from src.bib_handler import BibHandler
 
-def process_zotero_json(bib_json_data: List[Dict[str, Any]]) -> List[Dict[str, str]]:
+def extract_citation_keys(data: List[Dict[str, Any]]) -> List[Dict[str, str]]:
     """
     Process Zotero JSON data to extract key and citationKey pairs.
     
     Args:
-        bib_json_data (List[Dict[str, Any]]): List of Zotero JSON items
+        json_data (List[Dict[str, Any]]): List of Zotero JSON items
         
     Returns:
         List[Dict[str, str]]: List of dictionaries with 'Key' and 'citationKey' fields
     """
     citation_keys = []
     
-    for item in bib_json_data:
+    for item in data:
         # Extract the required fields
         key = item.get('key', '')
-        citation_key = item.get('citationKey', '')
+        item_data = item.get('data', '')
+        citation_key = item_data.get('citationKey', '')
         
         # Create the dictionary for this item
         citation_keys.append({
@@ -47,8 +50,7 @@ if __name__ == "__main__":
     with open(filename, "w", encoding="utf-8") as f:
         f.write(json)
     print(f"Written data to {filename}.")
-    data = process_zotero_json(zotero.json_data)
-    print(data)
+    citation_keys = extract_citation_keys(zotero.json_data)
     
     csv = zotero.get_csv(limit = limit)
     filename = "data/Milet_Bibliography_CSV_v2.csv"
