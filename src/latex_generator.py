@@ -1,56 +1,33 @@
-import pandas as pd
-import os
+from typing import List, Dict, Any
 import re
-from typing import List, Dict, Any, Tuple
-from datetime import datetime
+import pandas as pd
 
 class LatexGenerator:
     """
     Generates LaTeX files for bibliography exports (by year, author, and tags).
     """
     
-    def __init__(self, bib_csv_path: str = "data/Milet_Bibliography_CSV.csv", 
-                 tags_client: 'TagClient' = None):
+    def __init__(self, tags: 'TagClient' = None, items: List[Dict[str, Any]] = None):
         """
         Initialize the LaTeX generator.
         
         Args:
-            bib_csv_path (str): Path to the bibliography CSV file
-            tags_client (TagClient): Tag client instance for tag processing
+            tags (TagClient): Tag client instance for tag processing
         """
-        self.bib_csv_path = bib_csv_path
-        self.tags_client = tags_client
-        self.bib_df = None
-        self._load_bibliography()
+        self.tags = tags
+        self.items = items
+        self.data = self._reduce_data()
     
-    def _load_bibliography(self):
-        """Load and clean the bibliography data."""
-        # Read CSV
-        self.bib_df = pd.read_csv(self.bib_csv_path, encoding="UTF-8", na_strings="")
+    def _reduce_data(self):
+        data = []
+        for item in self.items: 
+            item_data = item.get('data', {})
+            if item_data.get('itemType') != 'note':
+                data.append(item_data)
+            item.pop('data', None)
+        return data
+
         
-        # Remove completely NA columns
-        na_cols = self.bib_df.isnull().all(axis=0)
-        self.bib_df = self.bib_df.loc[:, ~na_cols]
-        
-        # Convert types
-        self.bib_df = self.bib_df.convert_dtypes()
-        
-        # Handle citation keys
-        if 'citationKey' not in self.bib_df.columns:
-            # If citationKey column doesn't exist, create it from Key column
-            self.bib_df['citationKey'] = self.bib_df['Key']
-        
-        # Remove entries without citation keys
-        missing_keys = self.bib_df['citationKey'].isna() | (self.bib_df['citationKey'] == '')
-        if missing_keys.any():
-            print(f"Warning: {missing_keys.sum()} entries missing citation keys")
-            # Keep only entries with valid citation keys
-            self.bib_df = self.bib_df[~missing_keys]
-    
-    def _get_sort_locale(self) -> str:
-        """Get the sorting locale for Turkish characters."""
-        return "tr_TR"
-    
     def generate_by_year(self, output_path: str = "out/bibsections_by_year.tex") -> str:
         """
         Generate LaTeX sections by publication year.
@@ -61,45 +38,34 @@ class LatexGenerator:
         Returns:
             str: Generated LaTeX content
         """
-        # Get years table
-        years = self.bib_df['Publication.Year'].dropna().astype(int).unique()
-        years = sorted(years, reverse=True)
-        
-        # Generate defbibcheck definitions
-        defbibcheck_lines = []
+        # TODO cant set the other pass as a param
+        sections_file = open("out/bibsections_by_year.tex", "w")
+        bibcheck_file = open("out/defbibcheck_by_year.tex", "w")
+        years = []
+        pattern = re.compile(r'\b(\d{4})\b')
+        for x in self.data:
+            val = x.get('date', '')
+            match = pattern.search(val)
+            if match: 
+                val = match.group(1)
+                x['date'] = val
+                years.append(val)
+
+        years = sorted(set(years), key = int, reverse=True)
+        # Iterate over each year and find matching entries in data
         for year in years:
-            defbibcheck_lines.append(f"\\defbibcheck{{yr{year}}}{{%\n"
-                                   f"  \\iffieldint{{year}}%\n"
-                                   f"  {{\\ifnumequal{{\\thefield{{year}}}}{{{year}}}%%\n"
-                                   f"    {{}}%\n"
-                                   f"    {{\\skipentry}}}%\n"
-                                   f"  }}{{\\skipentry}}}}\n\n")
-        
-        # Save defbibcheck
-        defbibcheck_content = "".join(defbibcheck_lines)
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(defbibcheck_content)
-        print(f"Saved: {output_path}")
-        
-        # Generate bibsections
-        bibsections_lines = []
-        for year in years:
-            # Section header
-            section_line = f"\\section*{{{year}}}\n"
-            toc_line = f"\\addcontentsline{{toc}}{{section}}{{{year}}}%\n"
-            bib_line = f"\\printbibliography[check=yr{year},heading=none,env=compactbib]\n"
-            
-            bibsections_lines.extend([section_line, toc_line, bib_line])
-        
-        # Save bibsections
-        bibsections_content = "".join(bibsections_lines)
-        bibsections_path = output_path.replace("_by_year.tex", "_by_year.tex")
-        with open(bibsections_path, 'w', encoding='utf-8') as f:
-            f.write(bibsections_content)
-        print(f"Saved: {bibsections_path}")
-        
-        return bibsections_content
+            # Find all entries where date matches the current year
+            matching_entries = [entry for entry in self.data if entry.get("date") == year]
+            sections_file.writelines(f"\section*{{{year}}}\n")
+            sections_file.writelines(f"\\addcontentsline{{toc}}{{section}}{{{year}}}%\n")
+            sections_file.writelines(f"\printbibliography[check=yr{year},heading=none, env=compactbib]\n")
+            bibcheck_file.writelines(f"\defbibcheck{{yr{year}}}{{%\n")
+            bibcheck_file.writelines("  \iffieldint{year}\n")
+            bibcheck_file.writelines("  {\ifnumequal{\\thefield{year}}{" + year + "}\n")
+            bibcheck_file.writelines("    {}\n")
+            bibcheck_file.writelines("    {\skipentry}}\n")
+            bibcheck_file.writelines("  {\skipentry}}\n\n\n")
+        sections_file.close()
     
     def generate_by_author(self, output_path: str = "out/bibstructure_by_author.tex") -> str:
         """
