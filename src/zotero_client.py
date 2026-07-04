@@ -2,6 +2,7 @@ import requests
 import time
 from typing import List, Dict, Any
 import pandas as pd
+import os
 
 class ZoteroClient:
     """
@@ -146,7 +147,7 @@ class ZoteroClient:
         responses = self._fetch_items("json", limit = limit)
         # In a real implementation, you'd parse JSON here
         # For now, returning raw responses as strings
-        return responses
+        return '\n'.join(responses)
     
     def get_biblatex(self, limit: int = 0) -> str:
         """
@@ -185,5 +186,43 @@ if __name__ == "__main__":
     
     print("Zotero Client initialized successfully!")
     
-    # Example of how to use it (uncomment to test):
-    csv_data = zotero.get_csv(limit = 100)
+    
+    # Get and save the bibliography: 
+    demo_limit = 100
+
+    csv_data = zotero.get_csv(limit = demo_limit)
+    print(f"Got CSV data with {len(csv_data)} characters")
+    filename = "data/Milet_Bibliography_CSV_v2.csv"
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(csv_data)
+    print(f"CSV data written to {filename}")
+
+
+    json_data = zotero.get_json(limit = demo_limit)
+    print(f"Got JSON data with {len(json_data)} characters")
+    filename = "data/Milet_Bibliography_JSON_v2.json"
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(json_data)
+    print(f"JSON data written to {filename}")
+
+
+    biblatex_data = zotero.get_biblatex(limit = demo_limit)
+    print(f"Got JSON data with {len(biblatex_data)} characters")
+    filename = "data/Milet_Bibliography_BibLaTeX_v2.bib"
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(biblatex_data)
+    print(f"BibLaTeX data written to {filename}")
+
+    bibtex_data = zotero.get_bibtex(limit = demo_limit)
+    print(f"Got JSON data with {len(bibtex_data)} characters")
+    filename = "data/Milet_Bibliography_BibTeX_v2.bib"
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(bibtex_data)
+    print(f"BibTeX data written to {filename}")
+
+    ris_data = zotero.get_ris(limit = demo_limit)
+    print(f"Got JSON data with {len(ris_data)} characters")
+    filename = "data/Milet_Bibliography_RIS_v2.ris"
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(ris_data)
+    print(f"BibTeX data written to {filename}")
