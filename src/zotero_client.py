@@ -15,13 +15,16 @@ class ZoteroClient:
         Initialize the ZoteroClient.
         
         Args:
-            group_id (str): Zotero group ID
+            group_id (str): Zotero group ID; the default 4475959 is the Miletus Bibliography.
         """
         self.group_id = group_id
         self.base_url = f"https://api.zotero.org/groups/{group_id}/items"
         self.headers = {
             'Accept': 'application/json'
         }
+        self.format_types = frozenset(["csv", "json", "biblatex", "bibtex", "ris"])
+        self.csv_data = None
+        self.json_data = None
     
     def _get_total_items(self) -> int:
         """
@@ -56,8 +59,7 @@ class ZoteroClient:
         }
         
         # Set format parameter based on type
-        format_types = frozenset(["csv", "json", "biblatex", "bibtex", "ris"])
-        if format_type in format_types:
+        if format_type in self.format_types:
             params['format'] = format_type
         else: 
             raise Exception(f"Format must be one of {format_types}")
@@ -179,50 +181,43 @@ class ZoteroClient:
         responses = self._fetch_items("ris", limit = limit)
         return '\n'.join(responses)
 
+    def get_and_export_data(self, limit: int = 0) -> None:
+        """
+        Get all items in all defined export formats and write to files.
+        
+        Returns:
+            Nothing
+        """
+        # Yeah, I know this is a bit silly.
+        for format in self.format_types:
+            match format:
+                case "csv":
+                    data = self.get_csv(limit = limit)
+                    self.csv_data = data
+                    filename = "data/Milet_Bibliography_CSV_v2.csv"
+                case "json": 
+                    data = zotero.get_json(limit = limit)
+                    self.json_data = data
+                    filename = "data/Milet_Bibliography_JSON_v2.json"
+                case "biblatex":
+                    data = zotero.get_biblatex(limit = limit)
+                    filename = "data/Milet_Bibliography_BibLaTeX_v2.bib"
+                case "bibtex":
+                    data = zotero.get_bibtex(limit = limit)
+                    filename = "data/Milet_Bibliography_BibTeX_v2.bib"
+                case "ris":
+                    data = zotero.get_ris(limit = limit)
+                    filename = "data/Milet_Bibliography_RIS_v2.ris"
+
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write(data)
+            print(f"{limit} items written to {filename}")
+
+
 # Example usage:
 if __name__ == "__main__":
     # Initialize the Zotero client
     zotero = ZoteroClient()
-    
-    print("Zotero Client initialized successfully!")
-    
-    
+
     # Get and save the bibliography: 
-    demo_limit = 100
-
-    csv_data = zotero.get_csv(limit = demo_limit)
-    print(f"Got CSV data with {len(csv_data)} characters")
-    filename = "data/Milet_Bibliography_CSV_v2.csv"
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(csv_data)
-    print(f"CSV data written to {filename}")
-
-
-    json_data = zotero.get_json(limit = demo_limit)
-    print(f"Got JSON data with {len(json_data)} characters")
-    filename = "data/Milet_Bibliography_JSON_v2.json"
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(json_data)
-    print(f"JSON data written to {filename}")
-
-
-    biblatex_data = zotero.get_biblatex(limit = demo_limit)
-    print(f"Got JSON data with {len(biblatex_data)} characters")
-    filename = "data/Milet_Bibliography_BibLaTeX_v2.bib"
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(biblatex_data)
-    print(f"BibLaTeX data written to {filename}")
-
-    bibtex_data = zotero.get_bibtex(limit = demo_limit)
-    print(f"Got JSON data with {len(bibtex_data)} characters")
-    filename = "data/Milet_Bibliography_BibTeX_v2.bib"
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(bibtex_data)
-    print(f"BibTeX data written to {filename}")
-
-    ris_data = zotero.get_ris(limit = demo_limit)
-    print(f"Got JSON data with {len(ris_data)} characters")
-    filename = "data/Milet_Bibliography_RIS_v2.ris"
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(ris_data)
-    print(f"BibTeX data written to {filename}")
+    zotero.get_and_export_data(limit=200)
