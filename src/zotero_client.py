@@ -1,7 +1,6 @@
 import requests
 import time
 from typing import List, Dict, Any
-import pandas as pd
 import json
 
 class ZoteroClient:
