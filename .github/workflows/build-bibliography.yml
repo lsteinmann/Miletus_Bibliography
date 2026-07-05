@@ -1,6 +1,8 @@
 name: Run Python Scripts
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 8 1 * *'
 
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -13,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: new-worflows
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -21,10 +23,9 @@ jobs:
           python-version: '3.10' 
           cache: 'pip' # caching pip dependencies
       
-      - name: Install python and github dependencies 
+      - name: Install python dependencies and GitHub CLI
         run: |
           pip install -r requirements.txt
-          # Install gh CLI (GitHub CLI)
           sudo apt-get update
           sudo apt-get install -y gh
 
@@ -33,6 +34,3 @@ jobs:
           python main.py
           # Check what happened in the output directory:
           ls -la out/
-      
-      - name: Create Release Draft
-        
