@@ -6,3 +6,4 @@ pyparsing==3.3.2
 requests==2.34.2
 Unidecode==1.4.0
 urllib3==2.7.0
+pandas==3.0.3

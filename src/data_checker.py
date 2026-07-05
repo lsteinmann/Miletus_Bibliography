@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Tuple
-import pandas as pd
 import datetime
+import re
 
 class DataChecker:
     """
@@ -19,137 +19,120 @@ class DataChecker:
         Args:
             tags (TagClient): Tag client instance for tag processing
         """
-        self.items = items
+        self.items = {}
+        self.clean_items = {}
+        self._process_items(items)
+
         self.logfile = logfile
         self.tags = tags
-        self.clean_items = self._process_items()
         log = open(logfile, "w")
         log.writelines(f"Processing date and time: {datetime.datetime.now()}\n\n")
         log.close()
         print("Initialized the DataChecker.")
     
     def log(self, msg):
-        with pd.option_context(
-            'display.max_rows', None,
-            'display.max_columns', None,
-            'display.width', None,
-            'display.max_colwidth', None
-        ):
-            print(msg)
-            log = open(self.logfile, "a")
-            log.write(f"{msg} \n\n")
-            log.close()
+        print(msg)
+        log = open(self.logfile, "a")
+        log.write(f"{msg} \n\n")
+        log.close()
         
-    def _process_items(self) -> pd.DataFrame: 
+    def _process_items(self, items: List[Dict[str, Any]]) -> Dict[str, None]: 
         """
-        Compiles a more compact df of the keys and tags for quicker checking,
+        Compiles a more compact dict of relevant info for quicker checking,
         discards 'note'-itemTypes as those are not processed later anyway.
         """
-        items = []
-        for item in self.items:
+        for item in items:
             key = item.get('key', '')
+            if key not in self.items:
+                self.items[key] = item
             item_data = item.get('data', '')
             if item_data.get('itemType') == 'note': 
-                pass
+                continue
             else: 
                 meta = item.get('meta')
-                creator = meta.get('createdByUser')
-                items.append({
-                    'Key': key,
-                    'citationKey': item_data.get('citationKey', pd.NA),
-                    'dateAdded': item_data.get('dateAdded', pd.NA),
-                    'title': item_data.get('title', pd.NA),
-                    'createdBy': creator.get('username', pd.NA)
-                })
-        return pd.DataFrame(items)
+                creator_user = meta.get('createdByUser')
+                tags = [tag['tag'] for tag in item_data.get('tags', [])]
+                this_item = {
+                    'key': key,
+                    'citationKey': item_data.get('citationKey', None),
+                    'title': item_data.get('title', None),
+                    'tags': tags,
+                    'date': item_data.get('date', None),
+                    'creators': item_data.get('creators', []),
+                    'dateAdded': item_data.get('dateAdded', None),
+                    'createdBy': creator_user.get('username', None)
+                }
+                if key not in self.clean_items:
+                    self.clean_items[key] = this_item
+                
+    def _log_item_info(self, key: str):
+        item = self.clean_items[key]
+        msg = key + ": " + item["title"] + " (added by user " + item["createdBy"] + " on " + item["dateAdded"] + ")"
+        self.log(msg)
 
     def find_missing_citation_keys(self):
         self.log("Checking for items with missing citationKeys...")
-        missing = self.clean_items['citationKey'].isna()
-        if missing.sum() > 0:
-            self.log(f"Found {missing.sum()} items missing citationKeys:")
-            self.log(self.clean_items[(self.clean_items['citationKey'].isna())])
+        missing = []
+        for key in self.clean_items: 
+            if not self.clean_items[key]["citationKey"]:
+                missing.append(key)
+        if len(missing) > 0:
+            self.log(f"Found {len(missing)} items missing citationKeys:")
+            for key in missing: 
+                self._log_item_info(key)
             self.log("You need to check and fix these.")
         else: 
             self.log("There are no items with missing citationKeys - excellent.")
 
     def find_duplicate_citation_keys(self):
         self.log("Checking for duplicate citationKeys...")
-        existing_keys = self.clean_items.dropna(subset=['citationKey'])
-        duplicates = existing_keys['citationKey'].duplicated(keep=False)
-        duplicate_rows = existing_keys[duplicates]
-        if len(duplicate_rows.index) > 0:
-            self.log(f"Found {len(duplicate_rows.index)} duplicate citationKeys:")
-            self.log(duplicate_rows)
+        counts = {}
+        multiple = []
+        for key in self.clean_items:
+            citKey = self.clean_items[key]["citationKey"]
+            counts[citKey] = counts.get(citKey, 0) + 1
+            if counts[citKey] > 1: 
+                multiple.append(key)
+        if len(multiple) > 0:
+            self.log(f"Found {len(multiple)} duplicate citationKeys:")
+            for key in multiple:
+                self._log_item_info(key)
             self.log("You need to check and fix these.")
         else: 
             self.log("There are no duplicate citationKeys - excellent.")
     
     def find_items_without_tags(self): 
         missing_tags = []
-        for item in self.items:
-            data = item.get('data', [])
-            if data.get('itemType', '') != 'note':
-                tags = [tag['tag'] for tag in data.get('tags', [])]
-                levels = self.tags.get_hierarchy_level(tags)
-                all_none = all(x is None for x in levels)
-                if len(levels) == 0 or all_none: 
-                    missing_tags.append(item.get('key', ''))
-                #if item.get('key') == 'ITC7FWJX': 
-                #    break
+        all_tags = self.tags.get_all_tags()
+        for key in self.clean_items:
+            tags = set(self.clean_items[key]["tags"])
+            if tags.isdisjoint(all_tags): 
+                missing_tags.append(key)
         if len(missing_tags) > 0:
             self.log(f"Found {len(missing_tags)} items without systematic tags:")
-            result = self.clean_items.loc[(self.clean_items['Key'].isin(missing_tags))]
-            self.log(result)
+            for key in missing_tags:
+                self._log_item_info(key)    
         else:
             self.log("All items have at least one systematic tag. Good Job.")
-    
-    def find_items_without_precise_tags(self): 
-        missing_precise_tags = []
-        for item in self.items:
-            data = item.get('data', [])
-            if data.get('itemType', '') != 'note':
-                tags = [tag['tag'] for tag in data.get('tags', [])]
-                levels = self.tags.get_hierarchy_level(tags)
-                target_levels = {'subsection', 'subsubsection'}
-                has_precise = any(x in target_levels for x in levels)
-                if has_precise == False: 
-                    missing_precise_tags.append(item.get('key', ''))
-                if item.get('key') == 'ITC7FWJX': 
-                    break
-        if len(missing_precise_tags) > 0:
-            self.log(f"Found {len(missing_precise_tags)} items without precise systematic tags:")
-            result = self.clean_items.loc[(self.clean_items['Key'].isin(missing_precise_tags))]
-            self.log(result)
-            self.log("Consider reviewing them, maybe you can tag them better.")
-        else:
-            self.log("All items have at least one precise systematic tag. Good Job.")
     
     def check_all(self): 
         self.find_missing_citation_keys()
         self.find_duplicate_citation_keys()
         self.find_items_without_tags()
-        # I think we dont need it.
-        #self.find_items_without_precise_tags()
 
 
 # Example usage:
 if __name__ == "__main__":
     import json
-    from tag_client import TagClient
+    from src.tag_client import TagClient
     # Initialize with tag client
     with open("data/Milet_Bibliography_JSON.json", "r") as file:
         data = json.load(file)
 
     tags = TagClient()
-    
-
     data_checker = DataChecker(data, tags, "out/check_result.log")
     
-    data_checker.check_all()
+    data_checker.find_missing_citation_keys()
+    data_checker.find_duplicate_citation_keys()
+    data_checker.find_items_without_tags()
     
-    #data_checker.find_missing_citation_keys()
-    #data_checker.find_duplicate_citation_keys()
-    #data_checker.find_items_without_tags()
-    
-    # data_checker.find_items_without_precise_tags()

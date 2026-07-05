@@ -158,8 +158,9 @@ class TagClient:
         levels = []
         for x in tags: 
             key = self._tag_to_key(x)
-            res = self.tags[key]
-            levels.append(res["section_type"])
+            if key: 
+                res = self.tags[key]
+                levels.append(res["section_type"])
 
         # Return single value if input was a string, otherwise return list
         if isinstance(tags, str):
