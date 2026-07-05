@@ -1,5 +1,5 @@
 from typing import List, Any, Dict, Tuple
-from language_services import transliterate
+from language_services import transliterate, get_sorting_alphabet, sort_turkish
 
 # TODO
 # - This could include a query by year, and I could manually build the 
@@ -18,6 +18,24 @@ class BibliographyClient:
         self.tags_to_keys = {}
         self.years_to_keys = {}
         self.__process_json(json)
+        self.authors_by_letter = self.__prepare_letter_groups()
+
+    def __prepare_letter_groups(self):
+        sorting_alphabet = list(get_sorting_alphabet().upper())
+        authors_by_letter = {}
+        for letter in sorting_alphabet:
+            authors_by_letter[letter] = []
+        
+        # This is not unneccessary, I am sorting them here so that iterating
+        # over this elsewhere will already be in the order I want it in. 
+        sorted_authors = sort_turkish(self.author_info.keys())
+        for author in sorted_authors:
+            first_letter = author[0][0].upper()
+            if first_letter in authors_by_letter:
+                authors_by_letter[first_letter].append(author)
+            else: 
+                print(f"WARNING! -- Did not anticipate {first_letter} showing up, and it is thus not in the sorting alphabet.")
+        return authors_by_letter
 
     def __process_json(self, json: List[Dict[str, Any]] = None):
         print("Processing the Bibliography for easy access:")
@@ -158,7 +176,7 @@ class BibliographyClient:
 
     # ---------------------------------------------------------- Handle Authors
 
-    def list_all_authors(self) -> Dict[str, None]:
+    def list_all_author_info(self) -> Dict[str, None]:
         """
         Returns a Dict of the full info on all authors indexed by the 
         Tuple of (lastName, firstName) 
@@ -170,6 +188,19 @@ class BibliographyClient:
             Dict of full Author Info.
         """
         return self.author_info
+
+    def list_all_authors_by_letter(self) -> Dict[str, None]:
+        """
+        Returns a Dict of all author-keys grouped and indexed by the 
+        first letter of their last name.
+
+        Args:
+            None
+
+        Returns:
+            Dict of Letters and author-keys (Tuple of lastName, firstName)
+        """
+        return self.authors_by_letter
 
     def get_author(self, author: Tuple[str, str]) -> Dict[str, None]:
         """
@@ -254,37 +285,35 @@ if __name__ == "__main__":
         data = json.load(file)
 
     bib = BibliographyClient(data)
+    demo = True
+    if demo: 
+        # Get the data for one item:
+        print(bib.get_data("9DBGRJ9A"))
 
-    # Get the data for one item:
-    print(bib.get_data("9DBGRJ9A"))
+        # Get the citationKey for one item:
+        print(bib.get_citationKey("9DBGRJ9A"))
 
-    # Get the citationKey for one item:
-    print(bib.get_citationKey("9DBGRJ9A"))
+        # Get a Dict of all authors indexed by the Tuple of (lastName, firstName)
+        all_authors = bib.list_all_author_info()
+        print(all_authors)
 
-    # Get a Dict of all authors indexed by the Tuple of (lastName, firstName)
-    all_authors = bib.list_all_authors()
-    print(all_authors)
+        # Get a Dict of all authors indexed by the Tuple of (lastName, firstName)
+        print(bib.list_all_authors_by_letter())
 
-    # Get a Lis of all keys belongig to the author-key (lastName, firstName)
-    print(bib.get_author(("Steinmann", "Lisa")))
-
-    # Get a Dict of all keys and their respective author-key (lastName, firstName)
-    print(bib.list_all_keys_to_authors())
-    
-    # Get a Dict of all keys and their respective author-key (lastName, firstName)
-    print(bib.get_item_authors("9DBGRJ9A"))
-    
-    # Get a Lis of all keys belongig to the author-key (lastName, firstName)
-    print(bib.get_keys_by_author(("Steinmann", "Lisa")))
-
-    # Get a Lis of all keys belongig to the author-key (lastName, firstName)
-    print(bib.get_keys_by_tag("16 Methodik, Vermessungsarbeiten"))
-
-    # Get a Lis of all keys belongig to the author-key (lastName, firstName)
-    print(bib.get_tags("9DBGRJ9A"))
-    
-    # Sorting all authors... is annoying, since we do want to use the turkish
-    # locale for sorting in this Bibliography. Since setting the locale isn't 
-    # super reliable especially in runners, we just use our own turkish-sort:
-    from language_services import sort_turkish
-    print(sort_turkish(all_authors))
+        #Get a Lis of all keys belongig to the author-key (lastName, firstName)
+        print(bib.get_author(("Steinmann", "Lisa")))
+        # Get a Dict of all keys and their respective author-key (lastName, firstName)
+        print(bib.list_all_keys_to_authors())
+        # Get a Dict of all keys and their respective author-key (lastName, firstName)
+        print(bib.get_item_authors("9DBGRJ9A"))
+        # Get a Lis of all keys belongig to the author-key (lastName, firstName)
+        print(bib.get_keys_by_author(("Steinmann", "Lisa")))
+        # Get a Lis of all keys belongig to the author-key (lastName, firstName)
+        print(bib.get_keys_by_tag("16 Methodik, Vermessungsarbeiten"))
+        # Get a Lis of all keys belongig to the author-key (lastName, firstName)
+        print(bib.get_tags("9DBGRJ9A"))
+        # Sorting all authors... is annoying, since we do want to use the turkish
+        # locale for sorting in this Bibliography. Since setting the locale isn't 
+        # super reliable especially in runners, we just use our own turkish-sort:
+        from language_services import sort_turkish
+        print(sort_turkish(all_authors))

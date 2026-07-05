@@ -1,6 +1,5 @@
 from typing import List, Dict, Any
 import re
-import pandas as pd
 from bibliography_client import BibliographyClient
 from language_services import sort_turkish
 
@@ -75,22 +74,23 @@ class LatexGenerator:
             str: Generated LaTeX content
         """
         file = open("out/bibstructure_by_author_v2.tex", "w")
-        authors = self.bib.list_all_authors().keys()
-        authors = sort_turkish(authors)
-        for author in authors: 
-            print(author)
-            print(author[0][0])
-        #letters = set(authors['letter'])
-        #letters = sorted(letters)
-        #
-        #for letter in letters:
-        #    file.writelines(f"\\section{{{letter}}}\n\n")
-        #    subset = authors[authors['letter'] == letter]
-        #    for _, row in subset.iterrows():
-        #        file.writelines(f"\\subsection[{row['lastName_lat']}, {row['firstName_lat']} ({row['size']})]{{{row['lastName_lat']}, {row['firstName_lat']}}}\n")
-#
-        #    #print(authors.loc[authors['letter'] == letter])
-        #file.close()
+        grouped_authors = self.bib.list_all_authors_by_letter()
+        for letter in grouped_authors:
+            subset = grouped_authors[letter]
+            print(letter + ": " + str(len(subset)))
+            if len(subset) == 0:
+                continue
+            file.writelines(f"\\section{{{letter}}}\n\n")
+            for author in subset:
+                info = self.bib.get_author(author)
+                name = info["lastName-latin"] + ", " + info["firstName-latin"]
+                items = info["items"]
+                subsection = f"\\subsection[{name} ({len(items)})]{{{name}}}\n" 
+                file.writelines(subsection)
+                for item in items: 
+                    citationKey = self.bib.get_citationKey(item)
+                    file.writelines(f"\\fullcite{{{citationKey}}}\n\n")
+        file.close()
 
     
     def generate_by_tag(self, output_path: str = "out/bibstructure_by_keyword.tex") -> str:

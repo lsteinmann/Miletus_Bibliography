@@ -1,6 +1,9 @@
 # Language Service: transliteration and sorting functions
 from unidecode import unidecode
 
+def get_sorting_alphabet() -> str:
+    return 'aäbcçdefgğhıijklmnoöpqrsştuüvwxyz'
+
 def transliterate(text: str):
     """
     Transliterate any text with non-Latin characters into Latin characters.
@@ -30,7 +33,7 @@ def turkish_sort_key(text):
         tuple: Sort key tuple for proper Turkish alphabetical ordering
     """
     # Define Turkish alphabet order (excluding special characters)
-    turkish_alphabet = 'abcçdefgğhıijklmnoöprsştuüvyz'
+    turkish_alphabet = get_sorting_alphabet()
     
     # Create a mapping from each character to its position in Turkish alphabet
     char_to_index = {char: i for i, char in enumerate(turkish_alphabet)}
