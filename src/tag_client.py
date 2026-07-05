@@ -2,16 +2,17 @@ import csv
 import re
 from typing import List, Optional, Dict, Any, Union
 
+
 class TagClient:
     """
     A client for managing hierarchical tag systems from Zotero.
     Handles tag parsing, hierarchy determination, and LaTeX formatting.
     """
-    
+
     def __init__(self, tags_csv_path: str = "data/tags/tags_sys.csv"):
         """
         Initialize the TagClient with tag data from CSV.
-        
+
         Args:
             tags_csv_path (str): Path to the tags CSV file
         """
@@ -29,22 +30,27 @@ class TagClient:
                     this_key = row["Gruppe"]
                     parent = None
                     section_type = "section"
-                    #print("Adding section: " + row["Gruppe"] + " - " + row["DE"])
+                    # print("Adding section: " + row["Gruppe"] + " - " + row["DE"])
                 elif row["Untergruppe_2"] == "":
                     this_key = row["Gruppe"] + "-" + row["Untergruppe_1"]
                     parent = row["Gruppe"]
                     section_type = "subsection"
-                    #print("Adding subsection: " + this_key + " - " + row["DE"])
-                else: 
-                    this_key = row["Gruppe"] + "-" + row["Untergruppe_1"] + "-" + row["Untergruppe_2"]
+                    # print("Adding subsection: " + this_key + " - " + row["DE"])
+                else:
+                    this_key = (
+                        row["Gruppe"]
+                        + "-"
+                        + row["Untergruppe_1"]
+                        + "-"
+                        + row["Untergruppe_2"]
+                    )
                     parent = row["Gruppe"] + "-" + row["Untergruppe_1"]
                     section_type = "subsubsection"
-                    #print("Adding subsubsection: " + this_key + " - " + row["DE"])
-                # I have to remove "-" - this is absolutely hilarious. The result is a grammar nightmare. 
+                    # print("Adding subsubsection: " + this_key + " - " + row["DE"])
+                # I have to remove "-" - this is absolutely hilarious. The result is a grammar nightmare.
                 # But that is how it is in the Database. I don't know why.
                 tag = this_key + " " + row["DE"].replace("-", "")
 
-               
                 this = {
                     "tag": tag,
                     "section_type": section_type,
@@ -53,30 +59,28 @@ class TagClient:
                     "TR": row["TR"],
                     "EN": row["EN"],
                     "parent": parent,
-                    "children": []
+                    "children": [],
                 }
                 if this_key not in self.tags:
                     self.tags[this_key] = this
-                
 
-                #print("Key: " + this_key + "\t\t\t\t Tag: " + tag)
-                #print(this)
-    
-    
+                # print("Key: " + this_key + "\t\t\t\t Tag: " + tag)
+                # print(this)
+
     def _tag_to_key(self, tag: str) -> str:
-        match = re.match(r'^([0-9-]+)', tag)
+        match = re.match(r"^([0-9-]+)", tag)
         if match:
-            return match.group(1) 
+            return match.group(1)
         else:
             return None
 
     def get_parent(self, tag: str) -> Optional[str]:
         """
         Get the parent tag of a given tag.
-        
+
         Args:
             tag_name (str): The tag name to find parent for
-            
+
         Returns:
             Optional[str]: Parent tag name or None if not found
         """
@@ -86,7 +90,7 @@ class TagClient:
             parent = self.get_tag_info(this_tag["parent"])
             if parent:
                 return parent["tag"]
-            else: 
+            else:
                 return None
         else:
             return None
@@ -94,10 +98,10 @@ class TagClient:
     def get_children(self, tag: str) -> List[str]:
         """
         Get all child tags of a given tag.
-        
+
         Args:
             tag_name (str): The tag name to find children for
-            
+
         Returns:
             List[str]: List of child tag names
         """
@@ -110,11 +114,11 @@ class TagClient:
             return children
         else:
             return None
-    
+
     def get_all_tags(self) -> List[str]:
         """
         Get all available tag names.
-        
+
         Returns:
             List[str]: List of all tag names
         """
@@ -122,14 +126,14 @@ class TagClient:
         for key in self.tags:
             tag_names.append(self.tags[key]["tag"])
         return tag_names
-    
+
     def get_tag_info(self, tag: str) -> Optional[Dict[str, Any]]:
         """
         Get complete information about a specific tag.
-        
+
         Args:
             tag_name (str): The tag name to get info for
-            
+
         Returns:
             Optional[Dict[str, Any]]: Dictionary with tag information or None if not found
         """
@@ -138,8 +142,10 @@ class TagClient:
             return self.tags[key]
         else:
             return None
-    
-    def get_hierarchy_level(self, tags: Union[str, List[str]]) -> Optional[Union[str, List[str]]]:
+
+    def get_hierarchy_level(
+        self, tags: Union[str, List[str]]
+    ) -> Optional[Union[str, List[str]]]:
         """
         Get the hierarchy level(s) for one or more tag names.
 
@@ -156,9 +162,9 @@ class TagClient:
             tags = [tags]  # Convert to list for uniform processing
 
         levels = []
-        for x in tags: 
+        for x in tags:
             key = self._tag_to_key(x)
-            if key: 
+            if key:
                 res = self.tags[key]
                 levels.append(res["section_type"])
 
@@ -168,7 +174,9 @@ class TagClient:
         else:
             return levels  # Return list of values
 
-    def get_title(self, tag: str, language: str, strip_prefix: bool = False) -> Optional[str]:
+    def get_title(
+        self, tag: str, language: str, strip_prefix: bool = False
+    ) -> Optional[str]:
         key = self._tag_to_key(tag)
         info = self.get_tag_info(key)
         language = language.upper()
@@ -177,8 +185,9 @@ class TagClient:
         title = info[language]
         if strip_prefix:
             return title.split(": ", 1)[1]
-        else: 
+        else:
             return title
+
 
 # Example usage // Test demo:
 if __name__ == "__main__":
@@ -187,7 +196,7 @@ if __name__ == "__main__":
     # Initialize the tag client
     tag_client = TagClient()
 
-    #quit()
+    # quit()
 
     print("This is the Tests for the  TagClient for Miletus Bibliography.")
     print("This is printed so you can manually check if I am behaving correctly.")
@@ -195,64 +204,84 @@ if __name__ == "__main__":
     print("All tags found in the current csv:\n")
     print(tag_client.get_all_tags())
 
-
     print("\n -------------------------------------------------------------------")
-    print("An example of the 'get_parent'-method using the tag '02-01 Topographie: Prähistorisch':\n")
+    print(
+        "An example of the 'get_parent'-method using the tag '02-01 Topographie: Prähistorisch':\n"
+    )
     test_tag = "02 Allgemeine Darstellungen / Topographie"
     parent = tag_client.get_parent(test_tag)
     print(f"Parent of {test_tag}: \n {parent}")
-    
+
     print("\n -------------------------------------------------------------------")
-    print("An example of the 'get_parent'-method using the tag '02-01 Topographie: Prähistorisch':\n")
+    print(
+        "An example of the 'get_parent'-method using the tag '02-01 Topographie: Prähistorisch':\n"
+    )
     test_tag = "02-01 Topographie: Prähistorisch"
     parent = tag_client.get_parent(test_tag)
     print(f"Parent of {test_tag}: \n {parent}")
-    
+
     print("\n -------------------------------------------------------------------")
-    print("An example of the 'get_parent'-method using the tag '03-05-09 Keramik: Mittelalter':\n")
+    print(
+        "An example of the 'get_parent'-method using the tag '03-05-09 Keramik: Mittelalter':\n"
+    )
     test_tag = "03-05-09 Keramik: Mittelalter"
     parent = tag_client.get_parent(test_tag)
     print(f"Parent of {test_tag}: \n {parent}")
-    
+
     print("\n -------------------------------------------------------------------")
     print("An example of the 'get_parent'-method using the a non-existing tag:\n")
     test_tag = "Mittelalter"
     parent = tag_client.get_parent(test_tag)
     print(f"Parent of {test_tag}: \n {parent}")
-    
+
     print("\n -------------------------------------------------------------------")
-    print("An example of the 'get_children'-method using the Tag '02 Allgemeine Darstellungen / Topographie' :\n")
+    print(
+        "An example of the 'get_children'-method using the Tag '02 Allgemeine Darstellungen / Topographie' :\n"
+    )
     children = tag_client.get_children("02 Allgemeine Darstellungen / Topographie")
     print(f"Children of top-level tag: {children}")
 
     print("\n -------------------------------------------------------------------")
-    print("An example of the 'get_children'-method using the Tag '03 Funde aus Milet' :\n")
+    print(
+        "An example of the 'get_children'-method using the Tag '03 Funde aus Milet' :\n"
+    )
     children = tag_client.get_children("03 Funde aus Milet")
     print(f"Children of top-level tag: {children}")
 
     print("\n -------------------------------------------------------------------")
-    print("An example of the 'get_children'-method using the Tag '03-05 Funde: Keramik' :\n")
+    print(
+        "An example of the 'get_children'-method using the Tag '03-05 Funde: Keramik' :\n"
+    )
     children = tag_client.get_children("03-05 Funde: Keramik")
     print(f"Children of top-level tag: {children}")
 
     print("\n -------------------------------------------------------------------")
-    print("An example of the 'get_hierarchy_level'-method using the Tag '03-05 Funde: Keramik' :\n")
+    print(
+        "An example of the 'get_hierarchy_level'-method using the Tag '03-05 Funde: Keramik' :\n"
+    )
     level = tag_client.get_hierarchy_level("03-05 Funde: Keramik")
     print(f"Level of this tag: {level}")
 
     print("\n -------------------------------------------------------------------")
-    print("An example of the 'get_hierarchy_level'-method using the Tag '03-05 Funde: Keramik' :\n")
-    level = tag_client.get_hierarchy_level(["03-05 Funde: Keramik", "03 Funde aus Milet", "03-05-09 Keramik: Mittelalter"])
+    print(
+        "An example of the 'get_hierarchy_level'-method using the Tag '03-05 Funde: Keramik' :\n"
+    )
+    level = tag_client.get_hierarchy_level(
+        ["03-05 Funde: Keramik", "03 Funde aus Milet", "03-05-09 Keramik: Mittelalter"]
+    )
     print(f"Level of this tag: {level}")
 
     print("\n -------------------------------------------------------------------")
-    print("An example of the 'get_tag_info'-method using the Tag '03-05 Funde: Keramik' :\n")
+    print(
+        "An example of the 'get_tag_info'-method using the Tag '03-05 Funde: Keramik' :\n"
+    )
     info = tag_client.get_tag_info("03-05 Funde: Keramik")
     print(f"All info of this tag: {info}")
-    
-    
+
     print("\n -------------------------------------------------------------------")
-    print("An example of the 'get_tag_info'-method using the Tag '03-05 Funde: Keramik' :\n")
+    print(
+        "An example of the 'get_tag_info'-method using the Tag '03-05 Funde: Keramik' :\n"
+    )
     print('tag_client.get_title("03-05 Funde: Keramik")')
     print(tag_client.get_title("03-05 Funde: Keramik", "DE", True))
     print(tag_client.get_title("03-05 Funde: Keramik", "EN", True))
@@ -262,13 +291,19 @@ if __name__ == "__main__":
     print(tag_client.get_title("03-05 Funde: Keramik", "EN", False))
     print(tag_client.get_title("03-05 Funde: Keramik", "TR", False))
 
-    pottery = ['03-05-01 Keramik: Prähistorisch', '03-05-02 Keramik: Bronzezeit', 
-    '03-05-03 Keramik: geometrische Zeit', '03-05-04 Keramik: archaische Zeit', 
-    '03-05-05 Keramik: klassische Zeit', '03-05-06 Keramik: hellenistische Zeit', 
-    '03-05-07 Keramik: Kaiserzeit', '03-05-08 Keramik: Spät und Nachantike', 
-    '03-05-09 Keramik: Mittelalter']
+    pottery = [
+        "03-05-01 Keramik: Prähistorisch",
+        "03-05-02 Keramik: Bronzezeit",
+        "03-05-03 Keramik: geometrische Zeit",
+        "03-05-04 Keramik: archaische Zeit",
+        "03-05-05 Keramik: klassische Zeit",
+        "03-05-06 Keramik: hellenistische Zeit",
+        "03-05-07 Keramik: Kaiserzeit",
+        "03-05-08 Keramik: Spät und Nachantike",
+        "03-05-09 Keramik: Mittelalter",
+    ]
 
-    for x in pottery: 
+    for x in pottery:
         print(".............")
         print(x)
         print(tag_client.get_title(x, "DE", True))

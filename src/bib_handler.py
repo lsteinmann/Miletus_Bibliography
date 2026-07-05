@@ -4,12 +4,14 @@ from bibtexparser.bwriter import BibTexWriter
 from bibtexparser.customization import homogenize_latex_encoding, convert_to_unicode
 
 # I cannot remember why these processes were different and I do not know how
-# I should find out. 
+# I should find out.
+
 
 class BibHandler:
     """
     Loads and cleans BibTeX and BibLaTeX files to e.g. fix characters and formats.
     """
+
     def __init__(self):
         print("Initialized BibHandler.")
 
@@ -25,10 +27,10 @@ class BibHandler:
 
         # print(bib_database.entries)
         writer = BibTexWriter()
-        writer.order_entries_by=None
+        writer.order_entries_by = None
         writer.display_order
-        try: 
-            with open(filename, 'w', encoding='utf-8') as bibfile:
+        try:
+            with open(filename, "w", encoding="utf-8") as bibfile:
                 bibfile.write(writer.write(bib_database))
         except Exception as e:
             print(f"Error cleaning BibLaTeX file {filename}: {e}")
@@ -41,17 +43,12 @@ class BibHandler:
             parser.homogenize_fields = True
             parser.common_strings = False
             bib_database = bibtexparser.load(file, parser=parser)
-        
+
         # print(bib_database.entries)
         writer = BibTexWriter()
-        writer.order_entries_by = None #('author', 'year')
-        try: 
-            with open(filename, 'w', encoding='utf-8') as bibfile:
+        writer.order_entries_by = None  # ('author', 'year')
+        try:
+            with open(filename, "w", encoding="utf-8") as bibfile:
                 bibfile.write(writer.write(bib_database))
         except Exception as e:
             print(f"Error cleaning BibLaTeX file {filename}: {e}")
-
-
-
-
-
