@@ -7,7 +7,8 @@ def get_sorting_alphabet() -> str:
 def transliterate(text: str):
     """
     Transliterate any text with non-Latin characters into Latin characters.
-    Preserves Turkish special characters (ç, ğ, ı, ö, ş, ü) and handles all other scripts.
+    Preserves Turkish and German special characters (ç, ğ, ı, ä, ö, ş, ß, ü) 
+    and handles all other scripts.
     
     Args:
         text (str): Text to transliterate
@@ -15,8 +16,12 @@ def transliterate(text: str):
     Returns:
         str: Transliterated text with Latin characters
     """
-    turkish_chars = set('ığüöçşİĞÜÖÇŞ')
-    result = ''.join(char if char in turkish_chars else unidecode(char) for char in text)
+    # I actually do not want to use unidecode because it strips way too many 
+    # characters; However, there seems to be no better library that I have found
+    # so far and R was much more capable in this transliteration-business.
+    preserve_chars = set('ığäüöçşßİĞÄÜÖÇŞ')
+    # these are common german and turkish characters that I would like to keep.
+    result = ''.join(char if char in preserve_chars else unidecode(char) for char in text)
 
     return result
 
