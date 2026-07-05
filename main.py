@@ -6,7 +6,7 @@ from src.data_checker import DataChecker
 
 if __name__ == "__main__":
     zotero = ZoteroClient()
-    limit = 10  # 0 for "no limit" = all items
+    limit = 0  # 0 for "no limit" = all items
 
     # We get and save the bibliography here.
     # RIS is the format that needs least processing:
