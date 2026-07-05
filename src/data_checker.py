@@ -71,6 +71,7 @@ class DataChecker:
         self.log(msg)
 
     def find_missing_citation_keys(self):
+        self.log("----------------------------------------------------------\n")
         self.log("Checking for items with missing citationKeys...")
         missing = []
         for key in self.clean_items: 
@@ -85,6 +86,7 @@ class DataChecker:
             self.log("There are no items with missing citationKeys - excellent.")
 
     def find_duplicate_citation_keys(self):
+        self.log("----------------------------------------------------------\n")
         self.log("Checking for duplicate citationKeys...")
         counts = {}
         multiple = []
@@ -102,6 +104,7 @@ class DataChecker:
             self.log("There are no duplicate citationKeys - excellent.")
     
     def find_items_without_tags(self): 
+        self.log("----------------------------------------------------------\n")
         missing_tags = []
         all_tags = self.tags.get_all_tags()
         for key in self.clean_items:
@@ -115,10 +118,52 @@ class DataChecker:
         else:
             self.log("All items have at least one systematic tag. Good Job.")
     
+    def find_items_without_publication_date(self):
+        self.log("----------------------------------------------------------\n")
+        self.log("Checking for items with a malformed publication date / year...")
+        pattern = r'^\d{4}$'
+        missing_date = []
+        for key in self.clean_items:
+            date = self.clean_items[key]["date"]
+            if not re.match(pattern, date):
+                missing_date.append(key)
+        if len(missing_date) > 0:
+            self.log(f"Found {len(missing_date)} items without a well-formatted publication year:")
+            for key in missing_date:
+                self._log_item_info(key)    
+            self.log(f"\nPlease fix them by reducing them to a four digit number.")
+            self.log("Otherwise, the bibliography-by-year-pdf may not be filled correctly.")
+        else:
+            self.log("All items have four-digit-numbers as the publication year. Good Job.")
+        
+    def find_items_without_authors(self): 
+        self.log("----------------------------------------------------------\n")
+        missing_authors = []
+        for key in self.clean_items:
+            creators = self.clean_items[key]["creators"]
+            author_counter = []
+            for creator in creators: 
+                role = creator.get("creatorType")
+                if role == "author": 
+                    author_counter.append(role)
+            if len(author_counter) < 1:
+                missing_authors.append(key)
+        if len(missing_authors) > 0:
+            self.log(f"Found {len(missing_authors)} items without authors:")
+            for key in missing_authors:
+                self._log_item_info(key)    
+            self.log("\nThis may or may not be correct, please check!") 
+            self.log("Missing authors can cause problems when building the pdfs.")
+        else:
+            self.log("All items have at least one author. Good Job.")
+    
+
     def check_all(self): 
         self.find_missing_citation_keys()
         self.find_duplicate_citation_keys()
         self.find_items_without_tags()
+        self.find_items_without_publication_date()
+        self.find_items_without_authors()
 
 
 # Example usage:
@@ -135,4 +180,6 @@ if __name__ == "__main__":
     data_checker.find_missing_citation_keys()
     data_checker.find_duplicate_citation_keys()
     data_checker.find_items_without_tags()
+    data_checker.find_items_without_publication_date()
+    data_checker.find_items_without_authors()
     

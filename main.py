@@ -81,9 +81,7 @@ if __name__ == "__main__":
         logfile="out/check_result.log"
     )
 
-    data_checker.find_missing_citation_keys()
-    data_checker.find_duplicate_citation_keys()
-    data_checker.find_items_without_tags()
+    data_checker.check_all()
 
 
 
@@ -92,7 +90,7 @@ if __name__ == "__main__":
     print("------------------------- Let's go. -----------------------------------")
     print("-----------------------------------------------------------------------\n")
     
-    texgen = LatexGenerator(tags = tag_client, json_data=zotero.json_data)
+    texgen = LatexGenerator(tags=tag_client, json_data=zotero.json_data)
 
     texgen.generate_by_author("out/bibstructure_by_author.tex")
     texgen.generate_by_year("out/bibsections_by_year.tex")
