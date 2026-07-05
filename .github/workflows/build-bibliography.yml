@@ -33,15 +33,30 @@ jobs:
 
       - name: Run the main bibliography builder
         run: python main.py
+      
+      - name: Check for files
+        run: |
+          # Logs and tex-files
+          ls -la out/
+          # downloaded exports
+          ls -ls data/
 
       - name: Draft Release
         run: |
           # Get today's date in YYYY-MM-DD format
           DATE=$(date +"%Y-%m-%d")
+          MONTH=$(date +"%B")
+          YEAR=$(date +"%Y")
 
           # Create a draft release using gh
           gh release create "v$DATE" \
             --title "Release $DATE" \
             --draft \
-            --body "This is the update of the bibliography on $DATE ;" \
+            --latest \
+            --notes "This is the monthly update of the Miletus Bibliography for $MONTH $YEAR." 
             --repo $GITHUB_REPOSITORY
+
+      - name: Add files to release draft
+        run: |
+          DATE=$(date +"%Y-%m-%d")
+          gh release upload "v$DATE" ./out/check_result.log --clobber
