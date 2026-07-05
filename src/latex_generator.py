@@ -89,9 +89,13 @@ class LatexGenerator:
                 sorted_items = []
                 for item in items:
                     year = self.bib.get_publication_year(item)
+                    if year:
+                        year = extract_four_digits(year)
+                    else: 
+                        year = "0"
                     sorted_items.append({
                         "citationKey": self.bib.get_citationKey(item), 
-                        "year": extract_four_digits(year)
+                        "year": year
                     })
                 sorted_items = sorted(sorted_items, key=lambda x: x["year"])
 
