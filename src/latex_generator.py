@@ -21,7 +21,7 @@ class LatexGenerator:
             json_data (List of Dicts): The Bibliography as Exported from the Zotero API in JSON format. 
         """
         self.tags = tags
-        self.bib = BibliographyClient(json_data)
+        self.bib = BibliographyClient(json=json_data, tags=tags)
 
         
     def generate_by_year(self, output_path: str = "out/bibsections_by_year.tex") -> str:
@@ -114,8 +114,24 @@ class LatexGenerator:
             
         Returns:
             str: Generated LaTeX content
-        """
-        print("Yes.")
+        """        
+        def make_citation(citationKey: str):
+            citation = "\\fullcite{" + citationKey + "}\n\n"
+            return citation
+        file = open(output_path, "w")
+        grouped = self.bib.get_sorted_tag_groups()
+        for tag in grouped:
+            #print("-----------------------------------------------------------------------")
+            #print("--------------   " + tag + "------------------------------")
+            #print("-----------------------------------------------------------------------")
+            level = self.tags.get_hierarchy_level(tag)
+            strip_prefix = level in ["subsection", "subsubsection"]
+            title = self.tags.get_title(tag, "DE", strip_prefix)
+            heading = "\\" + level[0] + "[" + title + "]" + "{" + title + "}\n\n"
+            file.writelines(heading)
+            for citationKey in grouped[tag]:
+                file.writelines(make_citation(citationKey))
+        file.close()
     
     def generate_all(self):
         """Generate all LaTeX files."""

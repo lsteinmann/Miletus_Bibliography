@@ -16,6 +16,10 @@ class BibliographyClient:
         tags: 'TagClient' = None
     ):
         print("The Author Client has been initialized. ;)")
+        if not tags:
+            raise Exception(f"BibliographyClient needs a TagClient")
+        if not json:
+            raise Exception(f"BibliographyClient needs the json-Exports")
         self.tags = tags
 
         self.keys_to_data = {}
@@ -165,10 +169,10 @@ class BibliographyClient:
             # Validate required keys
             if "author" not in item or "year" not in item:
                 raise KeyError(f"Missing 'author' or 'year' in item: {item}")
-    
+
             author_tuple = item["author"]
             year_raw = item["year"]
-    
+
             # Handle author
             if isinstance(author_tuple, str):
                 last_name, first_name = author_tuple, ""
@@ -176,7 +180,7 @@ class BibliographyClient:
                 last_name, first_name = author_tuple[0], author_tuple[1]
             else:
                 last_name, first_name = str(author_tuple), ""
-    
+
             # Handle year: convert to int, but handle None and invalid values
             if year_raw is None:
                 year_int = -1  # or float('-inf') if you want None to come first
@@ -185,9 +189,9 @@ class BibliographyClient:
                     year_int = int(year_raw)
                 except (ValueError, TypeError):
                     year_int = float('inf')  # invalid years go last
-    
+
             return (turkish_sort_key(last_name), turkish_sort_key(first_name), year_int)
-    
+
         return sorted(items, key=sort_key)
 
     # ----------------------------------------------------- Data / Keys
