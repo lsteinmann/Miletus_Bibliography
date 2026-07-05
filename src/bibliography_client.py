@@ -20,23 +20,6 @@ class BibliographyClient:
         self.__process_json(json)
         self.authors_by_letter = self.__prepare_letter_groups()
 
-    def __prepare_letter_groups(self):
-        sorting_alphabet = list(get_sorting_alphabet().upper())
-        authors_by_letter = {}
-        for letter in sorting_alphabet:
-            authors_by_letter[letter] = []
-        
-        # This is not unneccessary, I am sorting them here so that iterating
-        # over this elsewhere will already be in the order I want it in. 
-        sorted_authors = sort_turkish(self.author_info.keys())
-        for author in sorted_authors:
-            first_letter = author[0][0].upper()
-            if first_letter in authors_by_letter:
-                authors_by_letter[first_letter].append(author)
-            else: 
-                print(f"WARNING! -- Did not anticipate {first_letter} showing up, and it is thus not in the sorting alphabet.")
-        return authors_by_letter
-
     def __process_json(self, json: List[Dict[str, Any]] = None):
         print("Processing the Bibliography for easy access:")
         print(" -- Warnings may appear here; see the output of the DataChecker for more info --")
@@ -82,6 +65,13 @@ class BibliographyClient:
                 self.keys_to_authors[key] = []
 
             for creator in creators: 
+                role = creator.get("creatorType", "NA")
+                if role == "editor":
+                    # Editors should not be listed as authors; if somehow this
+                    # field is empty, we still add the person, mainly because I
+                    # don't know what is going on and want to err on the side of
+                    # inclusion. 
+                    continue
                 # I checked what using transliteration as key did to the length
                 # of the author list and it went from 1085 (without) to 1084 (with)
                 # Now, I do not know if this is good or bad, but I assume it is good. 
@@ -103,6 +93,23 @@ class BibliographyClient:
                         "lastName-latin": transliterate(lastName)
                     }
                 self.author_info[author_key]["items"].append(key)
+
+    def __prepare_letter_groups(self):
+        sorting_alphabet = list(get_sorting_alphabet().upper())
+        authors_by_letter = {}
+        for letter in sorting_alphabet:
+            authors_by_letter[letter] = []
+        
+        # This is not unneccessary, I am sorting them here so that iterating
+        # over this elsewhere will already be in the order I want it in. 
+        sorted_authors = sort_turkish(self.author_info.keys())
+        for author in sorted_authors:
+            first_letter = author[0][0].upper()
+            if first_letter in authors_by_letter:
+                authors_by_letter[first_letter].append(author)
+            else: 
+                print(f"WARNING! -- Did not anticipate {first_letter} showing up, and it is thus not in the sorting alphabet.")
+        return authors_by_letter
 
     # ----------------------------------------------------- Data / Keys
 
