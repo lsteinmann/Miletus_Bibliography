@@ -51,6 +51,8 @@ class LatexGenerator:
         for year in years:
             # Find all entries where date matches the current year
             # matching_entries = [entry for entry in data if entry.get("date") == year]
+            if year == "NA" or year == "":
+                continue
             sections_file.writelines(f"\\section*{{{year}}}\n")
             sections_file.writelines(f"\\addcontentsline{{toc}}{{section}}{{{year}}}%\n")
             sections_file.writelines(f"\\printbibliography[check=yr{year},heading=none, env=compactbib]\n")
@@ -116,7 +118,7 @@ class LatexGenerator:
             str: Generated LaTeX content
         """        
         def make_citation(citationKey: str):
-            citation = "\\fullcite{" + citationKey + "}\n\n"
+            citation = "\\fullcite{" + str(citationKey) + "}\n\n"
             return citation
         file = open(output_path, "w")
         grouped = self.bib.get_sorted_tag_groups()
