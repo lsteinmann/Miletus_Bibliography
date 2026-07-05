@@ -141,9 +141,10 @@ if __name__ == "__main__":
     latex_gen = LatexGenerator(tags=tags, json_data=data)
     
     latex_gen.generate_by_year("out/bibsections_by_year.tex")
-    latex_gen.generate_by_author()
+    latex_gen.generate_by_author("out/bibstructure_by_author.tex")
+    latex_gen.generate_by_tag("out/bibstructure_by_keyword.tex")
 
     # Generate all files
     #latex_gen.generate_all()
     
-    #print("LaTeX generation complete!")
+    print("LaTeX generation complete!")
