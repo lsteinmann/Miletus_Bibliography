@@ -29,17 +29,17 @@ class TagClient:
                     this_key = row["Gruppe"]
                     parent = None
                     section_type = "section"
-                    print("Adding section: " + row["Gruppe"] + " - " + row["DE"])
+                    #print("Adding section: " + row["Gruppe"] + " - " + row["DE"])
                 elif row["Untergruppe_2"] == "":
                     this_key = row["Gruppe"] + "-" + row["Untergruppe_1"]
                     parent = row["Gruppe"]
                     section_type = "subsection"
-                    print("Adding subsection: " + this_key + " - " + row["DE"])
+                    #print("Adding subsection: " + this_key + " - " + row["DE"])
                 else: 
                     this_key = row["Gruppe"] + "-" + row["Untergruppe_1"] + "-" + row["Untergruppe_2"]
                     parent = row["Gruppe"] + "-" + row["Untergruppe_1"]
                     section_type = "subsubsection"
-                    print("Adding subsubsection: " + this_key + " - " + row["DE"])
+                    #print("Adding subsubsection: " + this_key + " - " + row["DE"])
                 # I have to remove "-" - this is absolutely hilarious. The result is a grammar nightmare. 
                 # But that is how it is in the Database. I don't know why.
                 tag = this_key + " " + row["DE"].replace("-", "")
@@ -59,7 +59,7 @@ class TagClient:
                     self.tags[this_key] = this
                 
 
-                print("Key: " + this_key + "\t\t\t\t Tag: " + tag)
+                #print("Key: " + this_key + "\t\t\t\t Tag: " + tag)
                 #print(this)
     
     
