@@ -161,24 +161,33 @@ class BibliographyClient:
         return sorted_items
 
     def _sort_by_author_and_year(self, items: List[Dict[str, str]]) -> List[Dict[str, str]]:
-        def sort_key(item: Dict[str, str]) -> Tuple[Tuple, str]:
+        def sort_key(item: Dict[str, str]) -> Tuple[Tuple, int, int]:
             # Validate required keys
             if "author" not in item or "year" not in item:
                 raise KeyError(f"Missing 'author' or 'year' in item: {item}")
-
+    
             author_tuple = item["author"]
-            year = item["year"]
-
-            # Handle non-tuple author (e.g., string)
+            year_raw = item["year"]
+    
+            # Handle author
             if isinstance(author_tuple, str):
                 last_name, first_name = author_tuple, ""
             elif isinstance(author_tuple, (tuple, list)) and len(author_tuple) >= 2:
                 last_name, first_name = author_tuple[0], author_tuple[1]
             else:
                 last_name, first_name = str(author_tuple), ""
-
-            return (turkish_sort_key(last_name), turkish_sort_key(first_name), year)
-
+    
+            # Handle year: convert to int, but handle None and invalid values
+            if year_raw is None:
+                year_int = -1  # or float('-inf') if you want None to come first
+            else:
+                try:
+                    year_int = int(year_raw)
+                except (ValueError, TypeError):
+                    year_int = float('inf')  # invalid years go last
+    
+            return (turkish_sort_key(last_name), turkish_sort_key(first_name), year_int)
+    
         return sorted(items, key=sort_key)
 
     # ----------------------------------------------------- Data / Keys
