@@ -1,4 +1,5 @@
 from typing import List, Any, Dict, Tuple
+from src.language_services import transliterate, get_sorting_alphabet, sort_turkish, turkish_sort_key
 from src.utils import extract_four_digits
 
 # TODO
@@ -9,14 +10,21 @@ from src.utils import extract_four_digits
 #   database itself (as that is prone to human error and zotero does not care.)
 
 class BibliographyClient: 
-    def __init__(self, json: List[Dict[str, Any]] = None):
+    def __init__(
+        self, 
+        json: List[Dict[str, Any]] = None,
+        tags: 'TagClient' = None
+    ):
         print("The Author Client has been initialized. ;)")
+        self.tags = tags
+
         self.keys_to_data = {}
         self.keys_to_meta = {}
         self.author_info = {}
         self.keys_to_authors = {}
         self.tags_to_keys = {}
         self.years_to_keys = {}
+
         self.__process_json(json)
         self.authors_by_letter = self.__prepare_letter_groups()
 
@@ -117,6 +125,59 @@ class BibliographyClient:
             else: 
                 print(f"WARNING! -- Did not anticipate {first_letter} showing up, and it is thus not in the sorting alphabet.")
         return authors_by_letter
+
+    def _sort_by_year(self, items: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        """
+        Expects: 
+        [
+            {
+                "citationKey": "bla", 
+                "year": "1234"
+            },
+            {
+                "citationKey": "bla", 
+                "year": "1235"
+            }
+        ]
+        """
+        result = sorted(items, key=lambda x: x["year"])
+        return result
+        
+    def _sort_by_author(self, items: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        """
+        Expects: 
+        [
+            {
+                "citationKey": "bla", 
+                "author": ("Müller", "Hans")
+            },
+            {
+                "citationKey": "bla", 
+                "author": ("Öztürk", "Mahmut")
+            }
+        ]
+        """
+        sorted_items = sort_turkish(items)
+        return sorted_items
+
+    def _sort_by_author_and_year(self, items: List[Dict[str, str]]) -> List[Dict[str, str]]:
+        """
+        Expects: 
+        [
+            {
+                "citationKey": "bla", 
+                "author": ("Müller", "Hans"), 
+                "year": "1235"
+            },
+            {
+                "citationKey": "bla", 
+                "author": ("Öztürk", "Mahmut"), 
+                "year": "1235"
+            }
+        ]
+        """
+        sorted_items = sort_turkish(items)
+        return sorted_items
 
     # ----------------------------------------------------- Data / Keys
 
@@ -318,14 +379,88 @@ class BibliographyClient:
         """
         tags = [tag['tag'] for tag in self.keys_to_data[key].get('tags', [])]
         return tags
+    
+    def get_sorted_author_groups(self) -> Dict[str, List[str]]:
+        """Return authors grouped by letter with properly sorted items."""
+        # Use your existing authors_by_letter and sort_turkish
+        # Return a dict where each letter maps to a list of citationKeys
+
+        # Migrate from LatexGenerator here. 
+        pass
+
+    def get_sorted_year_groups(self) -> List[str]:
+        """Return years in descending order with proper sorting."""
+        # Extract and sort years properly
+
+        # Migrate from LatexGenerator here. 
+        pass
+
+    def get_sorted_tag_groups(self) -> Dict[str, List[str]]:
+        """Return tags organized by hierarchy with proper sorting."""
+        # Return a dict of tag -> ordered list of citationKeys
+        structured_bib = {}
+        all_tags = self.tags.get_all_tags()
+        for tag in all_tags:
+            print("-----------------------------------------------------------------------")
+            print("--------------   " + tag + "    ------------------------------")
+            print("-----------------------------------------------------------------------")
+            this_tag = self.tags.get_tag_info(tag)
+            if tag == "01 Grabungs und Arbeitsberichte":
+                if tag not in structured_bib:
+                    structured_bib[tag] = []
+                keys = self.get_keys_by_tag(tag)
+                items = []
+                for key in keys: 
+                    year = self.get_publication_year(key)
+                    items.append({
+                        "citationKey": self.get_citationKey(key), 
+                        "year": extract_four_digits(year)
+                    })
+                items = self._sort_by_year(items)
+                for item in items:
+                    structured_bib[tag].append(item["citationKey"])
+                continue
+            #if True: #self.tags.get_hierarchy_level(tag) == ["section"]:
+            if tag not in structured_bib:
+                structured_bib[tag] = []
+            section_keys = self.get_keys_by_tag(tag)
+            child_tags = set(self.tags.get_children(tag))
+            keys_in_subsections = []
+            for child_tag in child_tags:
+                keys_in_subsections.extend(self.get_keys_by_tag(child_tag))
+                grandchild_tags = set(self.tags.get_children(child_tag))
+                for grandchild_tag in grandchild_tags:
+                    keys_in_subsections.extend(self.get_keys_by_tag(grandchild_tag))
+            section_keys = set(section_keys) - set(keys_in_subsections)
+            items = []
+            for key in section_keys:
+                author = self.get_item_authors(key)
+                if author: 
+                    author = author[0]
+                else:
+                    author = ("NA", "NA")
+                items.append({
+                    "citationKey": self.get_citationKey(key), 
+                    "author": author,
+                    "year": self.get_publication_year(key)
+                })
+            items = self._sort_by_author_and_year(items)
+            for item in items:
+                structured_bib[tag].append(item["citationKey"])
+            if tag in structured_bib:
+                print(structured_bib[tag])     
+        return structured_bib
 
 
 if __name__ == "__main__":
     import json
+    from src.tag_client import TagClient
+
     with open("data/Milet_Bibliography_JSON.json", "r") as file:
         data = json.load(file)
+    tag_client = TagClient("data/tags/tags_sys.csv")
 
-    bib = BibliographyClient(data)
+    bib = BibliographyClient(json=data,tags=tag_client)
     demo = True
     if demo: 
         # Get the data for one item:
@@ -358,3 +493,7 @@ if __name__ == "__main__":
         # super reliable especially in runners, we just use our own turkish-sort:
         from src.language_services import sort_turkish
         print(sort_turkish(all_authors))
+
+        print("----------- Tags")
+        tmp = bib.get_sorted_tag_groups()
+        #print(tmp)
