@@ -1,7 +1,7 @@
 from typing import List, Dict, Any
-import re
 from bibliography_client import BibliographyClient
 from language_services import sort_turkish
+from utils import extract_four_digits
 
 class LatexGenerator:
     """
@@ -41,11 +41,11 @@ class LatexGenerator:
         # TODO : actually this sucks, because the bib file will not 
         # have all years in there correctly, so they will not be in the
         # pdf.
-        pattern = re.compile(r'\b(\d{4})\b')
         # And I need to fix this somehow, probably I should generate the 
         # bib here myself, similar to the authors.  TODO
         years = self.bib.list_all_years()
-
+        for year in years: 
+            year = extract_four_digits(year)
         years = sorted(set(years), reverse=True)
         # Iterate over each year and find matching entries in data
         for year in years:
@@ -87,15 +87,11 @@ class LatexGenerator:
                 subsection = f"\\subsection[{name} ({len(items)})]{{{name}}}\n" 
                 file.writelines(subsection)
                 sorted_items = []
-                pattern = re.compile(r'\b(\d{4})\b')
                 for item in items:
                     year = self.bib.get_publication_year(item)
-                    match = pattern.search(year)
-                    if match: 
-                        year = match.group(1)
                     sorted_items.append({
                         "citationKey": self.bib.get_citationKey(item), 
-                        "year": year
+                        "year": extract_four_digits(year)
                     })
                 sorted_items = sorted(sorted_items, key=lambda x: x["year"])
 
