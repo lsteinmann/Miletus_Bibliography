@@ -7,6 +7,7 @@ from src.zotero_client import ZoteroClient
 from src.bib_handler import BibHandler
 from src.latex_generator import LatexGenerator
 from src.data_checker import DataChecker
+from src.bibliography_client import BibliographyClient
 
 if __name__ == "__main__":
     zotero = ZoteroClient()
@@ -73,7 +74,7 @@ if __name__ == "__main__":
     print("------------------------- Let's go. -----------------------------------")
     print("-----------------------------------------------------------------------\n")
     data_checker = DataChecker(zotero.json_data, logfile="out/check_result.log")
-    
+
     data_checker.find_missing_citation_keys()
     data_checker.find_duplicate_citation_keys()
     data_checker.find_items_without_tags()
@@ -85,4 +86,7 @@ if __name__ == "__main__":
     print("------------------------- Let's go. -----------------------------------")
     print("-----------------------------------------------------------------------\n")
     tags = TagClient()
-    #latex_generator = LatexGenerator(tags)
+    bib = BibliographyClient(zotero.json_data)
+    latex_generator = LatexGenerator(zotero.json_data, tags)
+
+    
