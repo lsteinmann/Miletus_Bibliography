@@ -82,10 +82,30 @@ class BibliographyClient:
 
     # ----------------------------------------------------- Data / Keys
 
-    def get_data(self, key) -> List[Dict[str, None]]:
+    def get_data(self, key) -> Dict[str, None]:
+        """
+        Returns a Dict containing all the 'data' object for the supplied key 
+        in its original state. 
+
+        Args:
+            key (str): The key (ID / key of the item in the Zotero database)
+
+        Returns:
+            Dict: containing e.g. DOI, date, dateAdded, dateModified, creators (List[Dict]). 
+                citationKey, title, and much more. All the entered data from Zotero.
+        """
         return self.keys_to_data[key]
 
     def get_citationKey(self, key) -> str:
+        """
+        Returns the citationKey of the supplied key. 
+
+        Args:
+            key (str): The key (ID / key of the item in the Zotero database)
+
+        Returns:
+            str: citationKey as referenced in the .bib-files used for building LaTeX citations.
+        """
         data = self.keys_to_data[key]
         citationKey = data["citationKey"]
         return citationKey
@@ -93,26 +113,91 @@ class BibliographyClient:
     # ---------------------------------------------------------- Handle Authors
 
     def list_all_authors(self) -> Dict[str, None]:
-        print("will return a list of Authors")
+        """
+        Returns a Dict of the full info on all authors indexed by the 
+        Tuple of (lastName, firstName) 
+
+        Args:
+            None
+
+        Returns:
+            Dict of full Author Info.
+        """
         return self.author_info
 
-    def list_keys_to_authors(self) -> Dict[str, None]:
+    def get_author(self, author: Tuple[str, str]) -> Dict[str, None]:
+        """
+        Returns a Dict of the full info this author.
+        
+        Args:
+            author (Tuple(str, str)): The author-key (Tuple of (lastName, firstName)) 
+
+        Returns:
+            Dict with list of item-keys, first and last name in original and transliterated state.
+        """
+        return self.author_info[author]
+
+    def list_all_keys_to_authors(self) -> Dict[str, None]:
+        """
+        Returns a Dict of all item-keys and the author-keys 
+        (Tuple of (lastName, firstName)) associated with them.
+
+        Args:
+            None
+
+        Returns:
+            Dict of item-key with author-keys
+        """
         return self.keys_to_authors
 
-    def get_item_authors(self, key) -> List[Dict[str, None]]:
+    def get_item_authors(self, key) -> List[Tuple[str, str]]:
+        """
+        Returns a List of author-keys (Tuple of (lastName, firstName)) 
+        associated with the item-key supplied as key.
+
+        Args:
+            key (str): The key (ID / key of the item in the Zotero database)
+
+        Returns:
+            List of Tuples[str, str]
+        """
         return self.keys_to_authors[key]
     
     def get_keys_by_author(self, author: Tuple[str, str]) -> List[str]: 
+        """
+        Returns a List of item-keys authored/edited by this author.
+        
+        Args:
+            author (Tuple(str, str)): The author-key (Tuple of (lastName, firstName)) 
+
+        Returns:
+            List of item-keys associated with the author supplied as author
+        """
         return self.author_info[author]["items"]
-    
-    def get_author(self, author: Tuple[str, str]) -> Dict[str, None]:
-        return self.author_info[author]
     
     # ------------------------------------------------------------- Handle Tags
     def get_keys_by_tag(self, tag: str) -> List[str]:
+        """
+        Returns a List of item-keys tagged with the supllied string.
+        
+        Args:
+            tag (str): The tag to query for 
+
+        Returns:
+            List[str] of item-keys tagged with this string
+        """
         return self.tags_to_keys[tag]
 
     def get_tags(self, key) -> List[str]:
+        """
+        Returns a List of all tags this item-key is tagged with.
+        
+        Args:
+            key (str): The key (ID / key of the item in the Zotero database)
+
+        Returns:
+            List[str] of tags
+        """
         tags = [tag['tag'] for tag in self.keys_to_data[key].get('tags', [])]
         return tags
 
@@ -123,7 +208,37 @@ if __name__ == "__main__":
         data = json.load(file)
 
     bib = BibliographyClient(data)
+
+    # Get the data for one item:
+    print(bib.get_data("9DBGRJ9A"))
+
+    # Get the citationKey for one item:
+    print(bib.get_citationKey("9DBGRJ9A"))
+
+    # Get a Dict of all authors indexed by the Tuple of (lastName, firstName)
+    all_authors = bib.list_all_authors()
+    print(all_authors)
+
+    # Get a Lis of all keys belongig to the author-key (lastName, firstName)
+    print(bib.get_author(("Steinmann", "Lisa")))
+
+    # Get a Dict of all keys and their respective author-key (lastName, firstName)
+    print(bib.list_all_keys_to_authors())
     
-    tmp = bib.list_all_authors()
+    # Get a Dict of all keys and their respective author-key (lastName, firstName)
+    print(bib.get_item_authors("9DBGRJ9A"))
+    
+    # Get a Lis of all keys belongig to the author-key (lastName, firstName)
+    print(bib.get_keys_by_author(("Steinmann", "Lisa")))
+
+    # Get a Lis of all keys belongig to the author-key (lastName, firstName)
+    print(bib.get_keys_by_tag("16 Methodik, Vermessungsarbeiten"))
+
+    # Get a Lis of all keys belongig to the author-key (lastName, firstName)
+    print(bib.get_tags("9DBGRJ9A"))
+    
+    # Sorting all authors... is annoying, since we do want to use the turkish
+    # locale for sorting in this Bibliography. Since setting the locale isn't 
+    # super reliable especially in runners, we just use our own turkish-sort:
     from language_services import sort_turkish
-    print(sort_turkish(tmp, key_index=0))
+    print(sort_turkish(all_authors, key_index=0))
