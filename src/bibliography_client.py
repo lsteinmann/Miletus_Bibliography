@@ -241,4 +241,4 @@ if __name__ == "__main__":
     # locale for sorting in this Bibliography. Since setting the locale isn't 
     # super reliable especially in runners, we just use our own turkish-sort:
     from language_services import sort_turkish
-    print(sort_turkish(all_authors, key_index=0))
+    print(sort_turkish(all_authors))

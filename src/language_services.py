@@ -17,7 +17,6 @@ def transliterate(text: str):
 
     return result
 
-# turkish_sort.py
 def turkish_sort_key(text):
     """
     Generate a sort key for Turkish alphabet ordering.
@@ -52,36 +51,26 @@ def turkish_sort_key(text):
     return tuple(sort_key)
 
 
-def sort_turkish(items, key_index=0, key_func=None):
+def sort_turkish(name_tuples):
     """
-    Sort a list of items according to Turkish alphabet rules.
-    Can handle lists of tuples, lists of lists, or any other iterable.
+    Sort a list of (lastName, firstName) tuples according to Turkish alphabetical ordering.
+    First sorts by lastName, then by firstName (both using Turkish alphabet rules).
     
     Args:
-        items (list): List of items to sort (tuples, lists, etc.)
-        key_index (int): Index of the element to sort by (default: 0)
-        key_func (callable): Optional function to extract the sort key from each item
+        name_tuples (list): List of tuples (lastName, firstName)
         
     Returns:
-        list: Sorted list of items
+        list: Sorted list of tuples
     """
     def get_sort_key(item):
-        if key_func:
-            # Use the provided key function
-            return turkish_sort_key(key_func(item))
-        
-        # Extract the specified element from the item
-        if isinstance(item, (list, tuple)):
-            if key_index < len(item):
-                return turkish_sort_key(str(item[key_index]))
-            else:
-                # If index is out of range, use empty string
-                return turkish_sort_key("")
+        if isinstance(item, (list, tuple)) and len(item) >= 2:
+            x, y = item[0], item[1]
+            return (turkish_sort_key(x), turkish_sort_key(y))
         else:
-            # For non-iterable items, treat as string
-            return turkish_sort_key(str(item))
+            # Handle edge cases
+            return (turkish_sort_key(str(item)),)
     
-    return sorted(items, key=get_sort_key)
+    return sorted(name_tuples, key=get_sort_key)
 
 
 # Example usage:
@@ -124,25 +113,26 @@ if __name__ == "__main__":
 
     # Test with tuples (name, age, city)
     people = [
-        ("İsmail", 29, "Samsun"),
-        ("Ali", 25, "Ankara"),
-        ("Yusuf", 36, "Kahramanmaraş"),
-        ("Mehmet", 26, "Diyarbakır"),
-        ("Özlem", 24, "Trabzon"),
-        ("Selin", 23, "Kocaeli"),
-        ("Ayşe", 30, "İstanbul"),
-        ("Cem", 22, "İzmir"),
-        ("Zeynep", 20, "Van"),
-        ("Derya", 28, "Bursa"),
-        ("Tolga", 34, "Antalya"),
-        ("Ferhat", 35, "Adana"),
-        ("Gül", 27, "Konya"),
-        ("Hakan", 32, "Mersin"),
-        ("Kemal", 31, "Eskişehir"),
-        ("Nuri", 33, "Gaziantep"),
-        ("Umut", 21, "Bursa")
+        ("İsmail", "Samsun"),
+        ("Ali", "Ankara"),
+        ("Yusuf", "Kahramanmaraş"),
+        ("Mehmet", "Diyarbakır"),
+        ("Özlem", "Trabzon"),
+        ("Selin", "Kocaeli"),
+        ("Ayşe", "İstanbul"),
+        ("Cem", "İzmir"),
+        ("Zeynep", "Van"),
+        ("Derya", "Bursa"),
+        ("Tolga", "Antalya"),
+        ("Ferhat", "Adana"),
+        ("Gül", "Konya"),
+        ("Hakan", "Mersin"),
+        ("Kemal", "Eskişehir"),
+        ("Nuri", "Gaziantep"),
+        # Should not break here
+        ("Umut", 2, "Bursa")
     ]
     
     print("Original:", [p[0] for p in people])
-    sorted_people = sort_turkish(people, key_index=0)
+    sorted_people = sort_turkish(people)
     print("Turkish sorted:", [p[0] for p in sorted_people])
