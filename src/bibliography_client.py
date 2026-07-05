@@ -61,8 +61,10 @@ class BibliographyClient:
                 print(
                     f"WARNING: Item {key} has no 'citationKey' and will not be processed."
                 )
-                print(f"    'itemType': {data.get("itemType", "NA")},")
-                print(f"    added on {data.get("dateAdded", "NA")}.")
+                item_type = data.get("itemType", "NA")
+                print(f"    'itemType': {item_type},")
+                date_added = data.get("dateAdded", "NA")
+                print(f"    added on {date_added}.")
                 print("---")
 
             tags = data.get("tags", None)
