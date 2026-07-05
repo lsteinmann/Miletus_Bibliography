@@ -83,7 +83,13 @@ class BibliographyClient:
                 lastName_latin = transliterate(lastName)
 
                 author_key = (lastName_latin, firstName_latin)
-                self.keys_to_authors[key].append(author_key)
+                # If an author is listed twice, e.g. as bookAuthor and also author, 
+                # they would be added twice and the key would be added twice to their
+                # entry. Therefore in both cases I check if the author_key exists
+                # already, and down there if the key already exists for the author.
+                # I have to change this if I ever want to add roles somewhere.
+                if author_key not in self.keys_to_authors[key]: 
+                    self.keys_to_authors[key].append(author_key)
                 if author_key not in self.author_info:
                     self.author_info[author_key] = {
                         "items": [],
@@ -92,7 +98,8 @@ class BibliographyClient:
                         "firstName-latin": transliterate(firstName),
                         "lastName-latin": transliterate(lastName)
                     }
-                self.author_info[author_key]["items"].append(key)
+                if key not in self.author_info[author_key]["items"]:
+                    self.author_info[author_key]["items"].append(key)
 
     def __prepare_letter_groups(self):
         sorting_alphabet = list(get_sorting_alphabet().upper())
@@ -153,6 +160,20 @@ class BibliographyClient:
         data = self.keys_to_data[key]
         citationKey = data["citationKey"]
         return citationKey
+
+    def get_publication_year(self, key) -> str:
+        """
+        Returns the "date" (publication year) of the supplied key. 
+
+        Args:
+            key (str): The key (ID / key of the item in the Zotero database)
+
+        Returns:
+            str: whatever is written in the date field.
+        """
+        data = self.keys_to_data[key]
+        year = data["date"]
+        return year
 
     # ------------------------------------------------- Handle Publication Date
     def list_all_years(self) -> List[str]:
