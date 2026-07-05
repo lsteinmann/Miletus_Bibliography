@@ -258,7 +258,9 @@ class BibliographyClient:
     def get_item_authors(self, key) -> List[Tuple[str, str]]:
         """
         Returns a List of author-keys (Tuple of (lastName, firstName)) 
-        associated with the item-key supplied as key.
+        associated with the item-key supplied as key. If there is no 
+        author recorded as the 'author', then it will give all creators of 
+        the item as (lastName, firstName)-Tuples.
 
         Args:
             key (str): The key (ID / key of the item in the Zotero database)
@@ -266,7 +268,18 @@ class BibliographyClient:
         Returns:
             List of Tuples[str, str]
         """
-        return self.keys_to_authors[key]
+        authors = self.keys_to_authors[key]
+        if len(authors) == 0:
+            raw = self.get_data(key)
+            authors = []
+            for creator in raw["creators"]:
+                first = creator.get("firstName", "NA")
+                last = creator.get("lastName", "NA")
+                authors.append((transliterate(last), transliterate(first)))
+        if len(authors) == 1:
+            return [authors]
+        else: 
+            return authors
     
     def get_keys_by_author(self, author: Tuple[str, str]) -> List[str]: 
         """
