@@ -1,7 +1,7 @@
 from typing import List, Dict, Any
-from bibliography_client import BibliographyClient
-from language_services import sort_turkish
-from utils import extract_four_digits
+from src.bibliography_client import BibliographyClient
+from src.language_services import sort_turkish
+from src.utils import extract_four_digits
 
 class LatexGenerator:
     """
@@ -132,7 +132,7 @@ class LatexGenerator:
 if __name__ == "__main__":
     # Initialize with tag client
     import json
-    from tag_client import TagClient
+    from src.tag_client import TagClient
     # Initialize with tag client
     with open("data/Milet_Bibliography_JSON.json", "r") as file:
         data = json.load(file)

@@ -11,7 +11,7 @@ from src.bibliography_client import BibliographyClient
 
 if __name__ == "__main__":
     zotero = ZoteroClient()
-    limit = 10 # 0 for "no limit" = all items
+    limit = 0 # 0 for "no limit" = all items
 
     # We get and save the bibliography here. 
     # RIS is the format that needs least processing:
@@ -32,8 +32,9 @@ if __name__ == "__main__":
     filename = "data/Milet_Bibliography_JSON.json"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(json)
-    print(f"Written data to {filename}.")
-    
+    print(f"Written data to {filename}.\n")
+    print("-----------------------------------------------------------------\n")
+
     print("Getting CSV from Zotero:")
     csv = zotero.get_csv(limit = limit)
     filename = "data/Milet_Bibliography_CSV.csv"
@@ -48,13 +49,14 @@ if __name__ == "__main__":
     # turkish alphabet in the database, and the Zotero API seems to 
     # put in 0 effort in cleaning the data to be actually compatibly 
     # with LaTeX.
+    bib_handler = BibHandler()
+
     print("Getting BibLaTeX from Zotero:")
     biblatex = zotero.get_biblatex(limit = limit)
     filename = "data/Milet_Bibliography_BibLaTeX.bib"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(biblatex)
     print(f"Written data to {filename}")
-    bib_handler = BibHandler()
     bib_handler.clean_biblatex_file(filename)
     print(f"Cleaned {filename} for compatibility.\n")
     print("-----------------------------------------------------------------\n")
@@ -73,7 +75,12 @@ if __name__ == "__main__":
     print("-----------------------------------------------------------------------")
     print("------------------------- Let's go. -----------------------------------")
     print("-----------------------------------------------------------------------\n")
-    data_checker = DataChecker(zotero.json_data, logfile="out/check_result.log")
+    tag_client = TagClient()
+    data_checker = DataChecker(
+        items=zotero.json_data, 
+        tags=tag_client,
+        logfile="out/check_result.log"
+    )
 
     data_checker.find_missing_citation_keys()
     data_checker.find_duplicate_citation_keys()
@@ -85,8 +92,7 @@ if __name__ == "__main__":
     print("-----------------------------------------------------------------------")
     print("------------------------- Let's go. -----------------------------------")
     print("-----------------------------------------------------------------------\n")
-    tags = TagClient()
-    bib = BibliographyClient(zotero.json_data)
-    latex_generator = LatexGenerator(zotero.json_data, tags)
+    
+    texgen = LatexGenerator(tags = tag_client, json_data=zotero.json_data)
 
     

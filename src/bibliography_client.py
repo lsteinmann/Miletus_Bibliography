@@ -1,5 +1,5 @@
 from typing import List, Any, Dict, Tuple
-from language_services import transliterate, get_sorting_alphabet, sort_turkish
+from src.language_services import transliterate, get_sorting_alphabet, sort_turkish
 
 # TODO
 # - This could include a query by year, and I could manually build the 
@@ -343,5 +343,5 @@ if __name__ == "__main__":
         # Sorting all authors... is annoying, since we do want to use the turkish
         # locale for sorting in this Bibliography. Since setting the locale isn't 
         # super reliable especially in runners, we just use our own turkish-sort:
-        from language_services import sort_turkish
+        from src.language_services import sort_turkish
         print(sort_turkish(all_authors))
