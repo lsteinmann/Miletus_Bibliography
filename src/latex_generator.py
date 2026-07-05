@@ -73,7 +73,7 @@ class LatexGenerator:
         Returns:
             str: Generated LaTeX content
         """
-        file = open("out/bibstructure_by_author_v2.tex", "w")
+        file = open(output_path, "w")
         grouped_authors = self.bib.list_all_authors_by_letter()
         for letter in grouped_authors:
             subset = grouped_authors[letter]
