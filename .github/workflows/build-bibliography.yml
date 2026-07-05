@@ -32,7 +32,16 @@ jobs:
           sudo apt-get install -y gh
 
       - name: Run the main bibliography builder
+        run: python main.py
+
+      - name: Draft Release
         run: |
-          python main.py
-          # Check what happened in the output directory:
-          ls -la out/
+          # Get today's date in YYYY-MM-DD format
+          DATE=$(date +"%Y-%m-%d")
+
+          # Create a draft release using gh
+          gh release create "v$DATE" \
+            --title "Release $DATE" \
+            --draft \
+            --body "This is the update of the bibliography on $DATE ;" \
+            --repo $GITHUB_REPOSITORY
