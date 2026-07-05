@@ -52,17 +52,36 @@ def turkish_sort_key(text):
     return tuple(sort_key)
 
 
-def sort_turkish(strings):
+def sort_turkish(items, key_index=0, key_func=None):
     """
-    Sort a list of strings according to Turkish alphabet rules.
+    Sort a list of items according to Turkish alphabet rules.
+    Can handle lists of tuples, lists of lists, or any other iterable.
     
     Args:
-        strings (list): List of strings to sort
+        items (list): List of items to sort (tuples, lists, etc.)
+        key_index (int): Index of the element to sort by (default: 0)
+        key_func (callable): Optional function to extract the sort key from each item
         
     Returns:
-        list: Sorted list of strings
+        list: Sorted list of items
     """
-    return sorted(strings, key=turkish_sort_key)
+    def get_sort_key(item):
+        if key_func:
+            # Use the provided key function
+            return turkish_sort_key(key_func(item))
+        
+        # Extract the specified element from the item
+        if isinstance(item, (list, tuple)):
+            if key_index < len(item):
+                return turkish_sort_key(str(item[key_index]))
+            else:
+                # If index is out of range, use empty string
+                return turkish_sort_key("")
+        else:
+            # For non-iterable items, treat as string
+            return turkish_sort_key(str(item))
+    
+    return sorted(items, key=get_sort_key)
 
 
 # Example usage:
@@ -102,3 +121,28 @@ if __name__ == "__main__":
     mixed_case = ["Kalem", "kalem", "KABAK", "kabak"]
     print("Mixed case:", mixed_case)
     print("Turkish sorted:", sort_turkish(mixed_case))
+
+    # Test with tuples (name, age, city)
+    people = [
+        ("İsmail", 29, "Samsun"),
+        ("Ali", 25, "Ankara"),
+        ("Yusuf", 36, "Kahramanmaraş"),
+        ("Mehmet", 26, "Diyarbakır"),
+        ("Özlem", 24, "Trabzon"),
+        ("Selin", 23, "Kocaeli"),
+        ("Ayşe", 30, "İstanbul"),
+        ("Cem", 22, "İzmir"),
+        ("Zeynep", 20, "Van"),
+        ("Derya", 28, "Bursa"),
+        ("Tolga", 34, "Antalya"),
+        ("Ferhat", 35, "Adana"),
+        ("Gül", 27, "Konya"),
+        ("Hakan", 32, "Mersin"),
+        ("Kemal", 31, "Eskişehir"),
+        ("Nuri", 33, "Gaziantep"),
+        ("Umut", 21, "Bursa")
+    ]
+    
+    print("Original:", [p[0] for p in people])
+    sorted_people = sort_turkish(people, key_index=0)
+    print("Turkish sorted:", [p[0] for p in sorted_people])
