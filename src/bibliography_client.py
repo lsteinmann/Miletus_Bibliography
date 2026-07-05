@@ -142,7 +142,7 @@ class BibliographyClient:
         """
         result = sorted(items, key=lambda x: x["year"])
         return result
-        
+
     def _sort_by_author(self, items: List[Dict[str, str]]) -> List[Dict[str, str]]:
         """
         Expects: 
@@ -161,23 +161,25 @@ class BibliographyClient:
         return sorted_items
 
     def _sort_by_author_and_year(self, items: List[Dict[str, str]]) -> List[Dict[str, str]]:
-        """
-        Expects: 
-        [
-            {
-                "citationKey": "bla", 
-                "author": ("Müller", "Hans"), 
-                "year": "1235"
-            },
-            {
-                "citationKey": "bla", 
-                "author": ("Öztürk", "Mahmut"), 
-                "year": "1235"
-            }
-        ]
-        """
-        sorted_items = sort_turkish(items)
-        return sorted_items
+        def sort_key(item: Dict[str, str]) -> Tuple[Tuple, str]:
+            # Validate required keys
+            if "author" not in item or "year" not in item:
+                raise KeyError(f"Missing 'author' or 'year' in item: {item}")
+    
+            author_tuple = item["author"]
+            year = item["year"]
+    
+            # Handle non-tuple author (e.g., string)
+            if isinstance(author_tuple, str):
+                last_name, first_name = author_tuple, ""
+            elif isinstance(author_tuple, (tuple, list)) and len(author_tuple) >= 2:
+                last_name, first_name = author_tuple[0], author_tuple[1]
+            else:
+                last_name, first_name = str(author_tuple), ""
+    
+            return (turkish_sort_key(last_name), turkish_sort_key(first_name), year)
+    
+        return sorted(items, key=sort_key)
 
     # ----------------------------------------------------- Data / Keys
 
