@@ -165,10 +165,10 @@ class BibliographyClient:
             # Validate required keys
             if "author" not in item or "year" not in item:
                 raise KeyError(f"Missing 'author' or 'year' in item: {item}")
-    
+
             author_tuple = item["author"]
             year = item["year"]
-    
+
             # Handle non-tuple author (e.g., string)
             if isinstance(author_tuple, str):
                 last_name, first_name = author_tuple, ""
@@ -176,9 +176,9 @@ class BibliographyClient:
                 last_name, first_name = author_tuple[0], author_tuple[1]
             else:
                 last_name, first_name = str(author_tuple), ""
-    
+
             return (turkish_sort_key(last_name), turkish_sort_key(first_name), year)
-    
+
         return sorted(items, key=sort_key)
 
     # ----------------------------------------------------- Data / Keys
@@ -403,11 +403,14 @@ class BibliographyClient:
         structured_bib = {}
         all_tags = self.tags.get_all_tags()
         for tag in all_tags:
-            print("-----------------------------------------------------------------------")
-            print("--------------   " + tag + "    ------------------------------")
-            print("-----------------------------------------------------------------------")
+            #print("-----------------------------------------------------------------------")
+            #print("--------------   " + tag + "    ------------------------------")
+            #print("-----------------------------------------------------------------------")
             this_tag = self.tags.get_tag_info(tag)
             if tag == "01 Grabungs und Arbeitsberichte":
+                # We are treating this one differently, because here we need 
+                # everything sorted by year only - we don't care who authored it. 
+                # This is the timeline.
                 if tag not in structured_bib:
                     structured_bib[tag] = []
                 keys = self.get_keys_by_tag(tag)
@@ -422,19 +425,36 @@ class BibliographyClient:
                 for item in items:
                     structured_bib[tag].append(item["citationKey"])
                 continue
-            #if True: #self.tags.get_hierarchy_level(tag) == ["section"]:
+            # And this is for *all* other sections, subsections, and subsubsections.
             if tag not in structured_bib:
                 structured_bib[tag] = []
             section_keys = self.get_keys_by_tag(tag)
+            # This is also where a little bit of sillyness begins: 
             child_tags = set(self.tags.get_children(tag))
             keys_in_subsections = []
             for child_tag in child_tags:
+                # I need all the keys that are linked to one of the child tags, 
+                # as well as one of the "grandchildren" - if they exist.
+                # If a third level is ever added to the bibliography, this will 
+                # not actually work anymore. I mean, it will work, but it needs 
+                # another level... or to be dynamic / recursive. 
                 keys_in_subsections.extend(self.get_keys_by_tag(child_tag))
                 grandchild_tags = set(self.tags.get_children(child_tag))
+                # This simply won't run if the tag in questions has no children. 
                 for grandchild_tag in grandchild_tags:
                     keys_in_subsections.extend(self.get_keys_by_tag(grandchild_tag))
+            # Here we remove all items/keys that are present in one of the sub-sections of
+            # this section from the current set of keys. 
+            # Why are we doing this? All items are tagged with multiple tags. 
+            # An item that would be tagged with one of the "sub" or "sub-sub"-section
+            # tags will also be tagged with the highest section, usually. 
+            # But we don't need all items to appear in these "broader" sections
+            # when it will be clear from the structure of the pdf that they belong
+            # to that larger group.  
             section_keys = set(section_keys) - set(keys_in_subsections)
             items = []
+            # Since we want to always sort by (first recorded) author and then
+            # year, we need to assemble the data:
             for key in section_keys:
                 author = self.get_item_authors(key)
                 if author: 
@@ -449,8 +469,7 @@ class BibliographyClient:
             items = self._sort_by_author_and_year(items)
             for item in items:
                 structured_bib[tag].append(item["citationKey"])
-            if tag in structured_bib:
-                print(structured_bib[tag])     
+            #print(structured_bib[tag])     
         return structured_bib
 
 
@@ -496,6 +515,6 @@ if __name__ == "__main__":
         from src.language_services import sort_turkish
         print(sort_turkish(all_authors))
 
-        print("----------- Tags")
+        print("----------- Tags:")
         tmp = bib.get_sorted_tag_groups()
-        #print(tmp)
+        print(tmp)
