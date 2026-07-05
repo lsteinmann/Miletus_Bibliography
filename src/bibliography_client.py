@@ -1,4 +1,4 @@
-from typing import List, Any, Dict, Tuple
+from typing import List, Any, Dict, Tuple, Optional
 from src.language_services import transliterate, get_sorting_alphabet, sort_turkish, turkish_sort_key
 from src.utils import extract_four_digits
 
@@ -196,7 +196,7 @@ class BibliographyClient:
         keys = self.keys_to_data.keys()
         return keys
 
-    def get_data(self, key) -> Dict[str, None]:
+    def get_data(self, key) -> Optional[Dict[str, None]]:
         """
         Returns a Dict containing all the 'data' object for the supplied key 
         in its original state. 
@@ -208,9 +208,12 @@ class BibliographyClient:
             Dict: containing e.g. DOI, date, dateAdded, dateModified, creators (List[Dict]). 
                 citationKey, title, and much more. All the entered data from Zotero.
         """
-        return self.keys_to_data[key]
+        if key in self.keys_to_data:
+            return self.keys_to_data[key]
+        else: 
+            return None
 
-    def get_citationKey(self, key) -> str:
+    def get_citationKey(self, key) -> Optional[str]:
         """
         Returns the citationKey of the supplied key. 
 
@@ -220,11 +223,14 @@ class BibliographyClient:
         Returns:
             str: citationKey as referenced in the .bib-files used for building LaTeX citations.
         """
-        data = self.keys_to_data[key]
-        citationKey = data["citationKey"]
-        return citationKey
+        if key in self.keys_to_data:
+            data = self.keys_to_data[key]
+            citationKey = data["citationKey"]
+            return citationKey
+        else:
+            return None
 
-    def get_publication_year(self, key) -> str:
+    def get_publication_year(self, key) -> Optional[str]:
         """
         Returns the "date" (publication year) of the supplied key. 
 
@@ -234,9 +240,12 @@ class BibliographyClient:
         Returns:
             str: whatever is written in the date field.
         """
-        data = self.keys_to_data[key]
-        year = extract_four_digits(data["date"])
-        return year
+        if key in self.keys_to_data:
+            data = self.keys_to_data[key]
+            year = extract_four_digits(data.get("date", None))
+            return year
+        else: 
+            return None
 
     # ------------------------------------------------- Handle Publication Date
     def list_all_years(self) -> List[str]:
