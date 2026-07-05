@@ -16,6 +16,7 @@ class BibliographyClient:
         self.author_info = {}
         self.keys_to_authors = {}
         self.tags_to_keys = {}
+        self.years_to_keys = {}
         self.__process_json(json)
 
     def __process_json(self, json: List[Dict[str, Any]] = None):
@@ -51,6 +52,11 @@ class BibliographyClient:
                     if tagname not in self.tags_to_keys:
                         self.tags_to_keys[tagname] = []
                     self.tags_to_keys[tagname].append(key)
+            
+            year = data.get("date", "NA")
+            if year not in self.years_to_keys: 
+                self.years_to_keys[year] = []
+            self.years_to_keys[year].append(key)
 
             creators = data.get("creators", {})
             
@@ -82,6 +88,19 @@ class BibliographyClient:
 
     # ----------------------------------------------------- Data / Keys
 
+    def list_all_keys(self) -> List[str]:
+        """
+        Returns a list of all item-keys. 
+
+        Args:
+            None
+
+        Returns:
+            List[str] of item-keys
+        """
+        keys = self.keys_to_data.keys()
+        return keys
+
     def get_data(self, key) -> Dict[str, None]:
         """
         Returns a Dict containing all the 'data' object for the supplied key 
@@ -109,6 +128,33 @@ class BibliographyClient:
         data = self.keys_to_data[key]
         citationKey = data["citationKey"]
         return citationKey
+
+    # ------------------------------------------------- Handle Publication Date
+    def list_all_years(self) -> List[str]:
+        """
+        Returns a list of all publication dates. 
+
+        Args:
+            None
+
+        Returns:
+            List[str] of publication dates (years, ideally)
+        """
+        years = self.years_to_keys.keys()
+        return years
+    
+    def get_keys_by_year(self, year: str) -> List[str]:
+        """
+        Returns a List of item-keys associated with this publication date.
+
+        Args:
+            year (str): The year / publication date
+
+        Returns:
+            List of item-keys associated with the publication date
+        """
+        years = self.years_to_keys.keys()
+        return years
 
     # ---------------------------------------------------------- Handle Authors
 

@@ -1,31 +1,28 @@
 from typing import List, Dict, Any
 import re
 import pandas as pd
+from bibliography_client import BibliographyClient
+from language_services import sort_turkish
 
 class LatexGenerator:
     """
     Generates LaTeX files for bibliography exports (by year, author, and tags).
     """
     
-    def __init__(self, tags: 'TagClient' = None, items: List[Dict[str, Any]] = None):
+    def __init__(
+        self, 
+        tags: 'TagClient' = None, 
+        json_data: List[Dict[str, Any]] = None
+    ):
         """
         Initialize the LaTeX generator.
         
         Args:
             tags (TagClient): Tag client instance for tag processing
+            json_data (List of Dicts): The Bibliography as Exported from the Zotero API in JSON format. 
         """
         self.tags = tags
-        self.items = items
-        self.data = self._reduce_data()
-    
-    def _reduce_data(self):
-        data = []
-        for item in self.items: 
-            item_data = item.get('data', {})
-            if item_data.get('itemType') != 'note':
-                data.append(item_data)
-            item.pop('data', None)
-        return data
+        self.bib = BibliographyClient(json_data)
 
         
     def generate_by_year(self, output_path: str = "out/bibsections_by_year.tex") -> str:
@@ -46,19 +43,13 @@ class LatexGenerator:
         # have all years in there correctly, so they will not be in the
         # pdf.
         pattern = re.compile(r'\b(\d{4})\b')
-        for x in self.data:
-            val = x.get('date', '')
-            match = pattern.search(val)
-            if match: 
-                val = match.group(1)
-                x['date'] = val
-                years.append(val)
+        years = self.bib.list_all_years()
 
-        years = sorted(set(years), key = int, reverse=True)
+        years = sorted(set(years), reverse=True)
         # Iterate over each year and find matching entries in data
         for year in years:
             # Find all entries where date matches the current year
-            matching_entries = [entry for entry in self.data if entry.get("date") == year]
+            # matching_entries = [entry for entry in data if entry.get("date") == year]
             sections_file.writelines(f"\\section*{{{year}}}\n")
             sections_file.writelines(f"\\addcontentsline{{toc}}{{section}}{{{year}}}%\n")
             sections_file.writelines(f"\\printbibliography[check=yr{year},heading=none, env=compactbib]\n")
