@@ -64,7 +64,7 @@ def sort_turkish(name_tuples):
     """
     def get_sort_key(item):
         if isinstance(item, (list, tuple)) and len(item) >= 2:
-            x, y = item[0], item[1]
+            x, y = str(item[0]), str(item[1])
             return (turkish_sort_key(x), turkish_sort_key(y))
         else:
             # Handle edge cases
