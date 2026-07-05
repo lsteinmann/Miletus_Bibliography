@@ -77,7 +77,6 @@ class LatexGenerator:
         grouped_authors = self.bib.list_all_authors_by_letter()
         for letter in grouped_authors:
             subset = grouped_authors[letter]
-            print(letter + ": " + str(len(subset)))
             if len(subset) == 0:
                 continue
             file.writelines(f"\\section{{{letter}}}\n\n")
@@ -87,8 +86,21 @@ class LatexGenerator:
                 items = info["items"]
                 subsection = f"\\subsection[{name} ({len(items)})]{{{name}}}\n" 
                 file.writelines(subsection)
-                for item in items: 
-                    citationKey = self.bib.get_citationKey(item)
+                sorted_items = []
+                pattern = re.compile(r'\b(\d{4})\b')
+                for item in items:
+                    year = self.bib.get_publication_year(item)
+                    match = pattern.search(year)
+                    if match: 
+                        year = match.group(1)
+                    sorted_items.append({
+                        "citationKey": self.bib.get_citationKey(item), 
+                        "year": year
+                    })
+                sorted_items = sorted(sorted_items, key=lambda x: x["year"])
+
+                for item in sorted_items: 
+                    citationKey = item["citationKey"]
                     file.writelines(f"\\fullcite{{{citationKey}}}\n\n")
         file.close()
 
