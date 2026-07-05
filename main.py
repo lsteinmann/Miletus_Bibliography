@@ -94,5 +94,9 @@ if __name__ == "__main__":
     print("-----------------------------------------------------------------------\n")
     
     texgen = LatexGenerator(tags = tag_client, json_data=zotero.json_data)
+    texgen.generate_by_year("out/bibsections_by_year.tex")
+    texgen.generate_by_author("out/bibstructure_by_author.tex")
+    texgen.generate_by_tag("out/bibstructure_by_keyword.tex")
+
 
     
