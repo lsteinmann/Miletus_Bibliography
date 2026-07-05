@@ -167,6 +167,18 @@ class TagClient:
         else:
             return levels  # Return list of values
 
+    def get_title(self, tag: str, language: str, strip_prefix: bool = False) -> Optional[str]:
+        key = self._tag_to_key(tag)
+        info = self.get_tag_info(key)
+        language = language.upper()
+        if language not in set(["DE", "EN", "TR"]):
+            return None
+        title = info[language]
+        if strip_prefix:
+            return title.split(": ", 1)[1]
+        else: 
+            return title
+
 # Example usage // Test demo:
 if __name__ == "__main__":
     print("\n -------------------------------------------------------------------")
@@ -231,3 +243,33 @@ if __name__ == "__main__":
     print("An example of the 'get_hierarchy_level'-method using the Tag '03-05 Funde: Keramik' :\n")
     level = tag_client.get_hierarchy_level(["03-05 Funde: Keramik", "03 Funde aus Milet", "03-05-09 Keramik: Mittelalter"])
     print(f"Level of this tag: {level}")
+
+    print("\n -------------------------------------------------------------------")
+    print("An example of the 'get_tag_info'-method using the Tag '03-05 Funde: Keramik' :\n")
+    info = tag_client.get_tag_info("03-05 Funde: Keramik")
+    print(f"All info of this tag: {info}")
+    
+    
+    print("\n -------------------------------------------------------------------")
+    print("An example of the 'get_tag_info'-method using the Tag '03-05 Funde: Keramik' :\n")
+    print('tag_client.get_title("03-05 Funde: Keramik")')
+    print(tag_client.get_title("03-05 Funde: Keramik", "DE", True))
+    print(tag_client.get_title("03-05 Funde: Keramik", "EN", True))
+    print(tag_client.get_title("03-05 Funde: Keramik", "TR", True))
+    print('tag_client.get_title("03-05 Funde: Keramik", DE/TR/EN, False)')
+    print(tag_client.get_title("03-05 Funde: Keramik", "DE", False))
+    print(tag_client.get_title("03-05 Funde: Keramik", "EN", False))
+    print(tag_client.get_title("03-05 Funde: Keramik", "TR", False))
+
+    pottery = ['03-05-01 Keramik: Prähistorisch', '03-05-02 Keramik: Bronzezeit', 
+    '03-05-03 Keramik: geometrische Zeit', '03-05-04 Keramik: archaische Zeit', 
+    '03-05-05 Keramik: klassische Zeit', '03-05-06 Keramik: hellenistische Zeit', 
+    '03-05-07 Keramik: Kaiserzeit', '03-05-08 Keramik: Spät und Nachantike', 
+    '03-05-09 Keramik: Mittelalter']
+
+    for x in pottery: 
+        print(".............")
+        print(x)
+        print(tag_client.get_title(x, "DE", True))
+        print(tag_client.get_title(x, "TR", True))
+        print(tag_client.get_title(x, "EN", True))
