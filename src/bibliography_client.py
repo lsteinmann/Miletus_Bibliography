@@ -1,5 +1,5 @@
 from typing import List, Any, Dict, Tuple
-from src.language_services import transliterate, get_sorting_alphabet, sort_turkish
+from src.utils import extract_four_digits
 
 # TODO
 # - This could include a query by year, and I could manually build the 
@@ -54,7 +54,7 @@ class BibliographyClient:
                         self.tags_to_keys[tagname] = []
                     self.tags_to_keys[tagname].append(key)
             
-            year = data.get("date", "NA")
+            year = extract_four_digits(data.get("date", "NA"))
             if year not in self.years_to_keys: 
                 self.years_to_keys[year] = []
             self.years_to_keys[year].append(key)
@@ -172,7 +172,7 @@ class BibliographyClient:
             str: whatever is written in the date field.
         """
         data = self.keys_to_data[key]
-        year = data["date"]
+        year = extract_four_digits(data["date"])
         return year
 
     # ------------------------------------------------- Handle Publication Date
