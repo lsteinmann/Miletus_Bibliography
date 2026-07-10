@@ -55,6 +55,22 @@ Install the required libraries:
 pip install -r requirements.txt
 ```
 
+You can run the whole python pipeline from `main.py`: 
+
+```
+python3 -m main
+```
+
+Or check each submodule: 
+
+```
+python3 -m src.zotero_client
+python3 -m src.bibliography_client
+python3 -m src.tag_client
+python3 -m src.data_checker
+python3 -m src.latex_generator
+```
+
 
 # Tools
 Some of the code has been ported from R to python using Qwen 3 Coder along my mental model of the project. I made this transparent in the commit messages. Generally, all commits / changes are human-made if not stated otherwise. 
