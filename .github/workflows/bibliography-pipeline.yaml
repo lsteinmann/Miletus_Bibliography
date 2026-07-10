@@ -162,7 +162,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tex-logs
-          path: tex/logs/*.log
+          path: tex/*.log
 
       - name: Upload PDFs
         uses: actions/upload-artifact@v4
