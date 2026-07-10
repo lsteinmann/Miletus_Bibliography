@@ -1,0 +1,88 @@
+name: Generate and Cache Files
+
+on:
+  workflow_dispatch:
+    inputs:
+      generate:
+        description: "Force using cache generation flow"
+        required: false
+        default: "false"
+        type: boolean
+
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Restore cache
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: generated/
+          key: generated-files-${{ runner.os }}-${{ github.ref_name }}
+          restore-keys: |
+            generated-files-${{ runner.os }}-
+
+      - name: Check cache freshness
+        id: cache_check
+        shell: bash
+        run: |
+          CACHE_VALID=false
+
+          if [ "${{ steps.cache.outputs.cache-hit }}" = "true" ]; then
+            if [ -f generated/.cache_timestamp ]; then
+              CACHE_TIME=$(cat generated/.cache_timestamp)
+              NOW=$(date +%s)
+              AGE=$((NOW - CACHE_TIME))
+
+              echo "Cache age: ${AGE}s"
+
+              if [ "$AGE" -lt 86400 ]; then
+                CACHE_VALID=true
+              fi
+            fi
+          fi
+
+          if [ "${{ inputs.generate }}" = "true" ]; then
+            echo "Manual generate input enabled"
+            CACHE_VALID=true
+          fi
+
+          echo "cache_valid=$CACHE_VALID" >> "$GITHUB_OUTPUT"
+
+      - name: Generate files
+        if: steps.cache_check.outputs.cache_valid != 'true'
+        shell: bash
+        run: |
+          echo "Generating files..."
+
+          mkdir -p generated/subdir1
+          mkdir -p generated/subdir2/nested
+          mkdir -p generated/subdir3
+
+          echo "Example file 1" > generated/file1.txt
+          echo "Example file 2" > generated/subdir1/file2.txt
+          echo "Example file 3" > generated/subdir2/nested/file3.txt
+          echo "Example file 4" > generated/subdir3/file4.txt
+
+          date +%s > generated/.cache_timestamp
+
+      - name: Save cache if newly generated
+        if: steps.cache_check.outputs.cache_valid != 'true'
+        uses: actions/cache@v4
+        with:
+          path: generated/
+          key: generated-files-${{ runner.os }}-${{ github.ref_name }}
+
+      - name: Show generated or cached files
+        shell: bash
+        run: |
+          echo "Files in generated directory:"
+          ls -R generated/
