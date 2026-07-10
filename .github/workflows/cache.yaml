@@ -56,6 +56,8 @@ jobs:
         uses: actions/cache/restore@v6
         with:
           key: bibliography-${{ github.ref_name }}
+          restore-keys: |
+            bibliography-${{ github.ref_name }}-
           path: out/
 
       - name: Setup Python
@@ -79,10 +81,10 @@ jobs:
         run: python bibliography_convert.py
 
       - name: Save cache of updated files
-        if: always() && steps.restore-cache.outputs.cache-hit != 'true'
+        if: always()
         uses: actions/cache/save@v6
         with:
-          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
+          key: bibliography-${{ github.ref_name }}-${{ github.run_id }}
           path: out/
 
       - name: Show cached/refreshed files
