@@ -195,6 +195,24 @@ jobs:
           name: logs
           path: out/logs
 
-      - name: Show files
-        run: |
-          ls -R out/
+      - name: Download Data
+        uses: actions/download-artifact@v4
+        with:
+          name: data
+          path: out/data
+
+      - name: make file
+        run: echo "This is a test" > out/body.md
+      
+      - name: Set bibliography version
+        run: echo "RELEASE_NAME=The Miletus Bibliography (v. $(date +'%-m-%Y'))" >> "$GITHUB_ENV"
+
+      - name: Draft Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: ${{ env.RELEASE_NAME }}
+          artifacts: "out/data/"
+          draft: true
+          makeLatest: true
+          allowUpdates: true
+          bodyFile: "out/body.md"
