@@ -1,8 +1,8 @@
-name: Build Bibliography PDFs
+name: Build PDFs
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: [Run Python Scripts]
+    workflows: ["Build Bibliography"]
     types: [completed]
 
 env:
@@ -14,16 +14,16 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
-          ref: update-out
+          ref: main
       
       - name: Github Action for LaTeX
         uses: xu-cheng/latex-action@v3
         with: 
           compiler: latexmk
           texlive_version: 2023
-          args: -pdf -auxdir=logs/ -outdir=../out/pdf/
+          args: -pdf -auxdir=out/logs/ -outdir=../out/pdf/
           work_in_root_file_dir: true
           latexmk_use_xelatex: true
           root_file: |
@@ -32,21 +32,16 @@ jobs:
             tex/milet-bibliographie-by-tag-pdf.tex
             tex/milet-bibliographie-summary.tex
 
-      - name: Commit and push changes
-        run: |
-          date > out/auto_gen_date_pdf.txt
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add out/pdf/.
-          git add out/auto_gen_date_pdf.txt
-          git status
-          git commit -m "auto-update pdfs"
-          git push
-
       - name: Upload logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: logs
+          name: tex-logs
           path: tex/logs/*.log
+
+      - name: Upload PDFs
+        uses: actions/upload-artifact@v7
+        with:
+          name: pdf
+          path: out/pdf/
 
           
