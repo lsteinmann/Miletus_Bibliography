@@ -38,7 +38,7 @@ jobs:
         run: ls -R out/
 
       - name: Upload Logs
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with: 
           name: logs
           path: out/logs/
@@ -46,7 +46,7 @@ jobs:
           overwrite: true
       
       - name: Upload Data
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with: 
           name: data
           path: out/data/
@@ -54,7 +54,7 @@ jobs:
           overwrite: true
 
       - name: Upload Tex Files
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with: 
           name: tex
           path: out/tex/
