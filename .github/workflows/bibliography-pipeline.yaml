@@ -99,7 +99,7 @@ jobs:
           ls -R out/
 
       - name: Upload Logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with: 
           name: logs
           path: out/logs/
@@ -107,7 +107,7 @@ jobs:
           overwrite: true
       
       - name: Upload Data
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with: 
           name: data
           path: out/data/
@@ -115,7 +115,7 @@ jobs:
           overwrite: true
 
       - name: Upload HTML Table
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with: 
           name: html
           path: out/html/
@@ -123,7 +123,7 @@ jobs:
           overwrite: true
 
       - name: Upload TeX files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with: 
           name: tex
           path: out/tex/
@@ -140,13 +140,13 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Download Data
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: data
           path: out/data
 
       - name: Download TeX files
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: tex
           path: out/tex
@@ -170,13 +170,13 @@ jobs:
             tex/milet-bibliographie-summary.tex
 
       - name: Upload LaTeX logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: tex-logs
           path: tex/*.log
 
       - name: Upload PDFs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pdf
           path: out/pdf/
@@ -194,7 +194,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Download Logs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: logs
           path: out/logs
@@ -226,13 +226,13 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Download Data
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: data
           path: out/data
 
       - name: Download PDFs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: pdf
           path: out/pdf
