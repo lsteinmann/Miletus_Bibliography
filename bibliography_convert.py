@@ -4,7 +4,7 @@ import operator
 
 inpfilename = "./out/data/Milet_Bibliography_CSV.csv"
 #inpfilename = "2022_02_16_Bibliographie.csv"
-inpnewfilename = "./out/milet-bibliography-html-tablerows"
+inpnewfilename = "./out/html/milet-bibliography-html-tablerows"
 
 print("Converting file: ", inpfilename)
 
