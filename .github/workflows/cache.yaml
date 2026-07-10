@@ -1,4 +1,4 @@
-name: Refresh and Cache Files
+name: Miletus Bibliography Pipeline
 
 on:
   workflow_dispatch:
