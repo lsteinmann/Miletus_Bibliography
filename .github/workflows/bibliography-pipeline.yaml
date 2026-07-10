@@ -186,6 +186,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: get-bibliography
     
+    permissions:
+      contents: write
+    
     env:
       GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
@@ -217,7 +220,7 @@ jobs:
         with:
           name: ${{ env.RELEASE_NAME }}
           tag: ${{ env.RELEASE_TAG }}
-          artifacts: "out/data/"
+          artifacts: "out/data/**"
           draft: true
           makeLatest: true
           allowUpdates: true
