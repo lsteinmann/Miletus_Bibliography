@@ -191,6 +191,8 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: create issue
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           RELEASE_TAG="v$(date +'%-m-%Y')"
           gh issue create \
