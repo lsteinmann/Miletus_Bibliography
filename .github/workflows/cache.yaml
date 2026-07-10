@@ -48,9 +48,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: out/
-          key: bibliography-${{ runner.os }}-${{ github.ref_name }}
-          restore-keys: |
-            bibliography-${{ runner.os }}-${{ github.ref_name }}
+          key: bibliography-${{ github.ref_name }}
 
       - name: Setup Python
         if: steps.mode.outputs.refresh == 'true'
@@ -72,12 +70,12 @@ jobs:
         if: steps.mode.outputs.refresh == 'true'
         run: python bibliography_convert.py
 
-      - name: Cache the updated files
+      - name: Save cache of updated files
         if: steps.mode.outputs.refresh == 'true'
         uses: actions/cache@v4
         with:
           path: out/
-          key: bibliography-${{ runner.os }}-${{ github.ref_name }}
+          key: bibliography-${{ github.ref_name }}
 
       - name: Show cached/refreshed files
         shell: bash
@@ -101,6 +99,15 @@ jobs:
           retention-days: 31
           overwrite: true
 
+      - name: Upload TeX files
+        uses: actions/upload-artifact@v4
+        with: 
+          name: tex
+          path: out/tex/
+          retention-days: 31
+          overwrite: true
+
+
   use-files:
     runs-on: ubuntu-latest
     needs: get-bibliography
@@ -108,11 +115,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore the cached files
-        uses: actions/cache@v4
+      - name: Download Data
+        uses: actions/download-artifact@v4
         with:
-          path: out/
-          key: bibliography-${{ runner.os }}-${{ github.ref_name }}
+          name: data
+          path: out/data
 
       - name: Show files
         run: |
