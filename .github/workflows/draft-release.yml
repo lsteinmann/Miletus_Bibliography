@@ -1,0 +1,40 @@
+name: Draft Release
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Build Bibliography"]
+    types:
+      - completed
+
+env:
+  GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+jobs:
+  Python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: new-workflows
+      
+      - name: Download Logs
+        uses: actions/download-artifact@v8
+        with:
+          name: logs
+          path: out/logs
+
+      - name: Download Data
+        uses: actions/download-artifact@v8
+        with:
+          name: data
+          path: out/data
+
+      - name: Download Tex Files
+        uses: actions/download-artifact@v8
+        with:
+          name: tex
+          path: out/tex
+
+      - name: Check for files
+        run: ls -R out/
