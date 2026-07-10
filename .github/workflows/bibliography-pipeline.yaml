@@ -171,15 +171,20 @@ jobs:
           path: out/pdf/
 
 
-  make-release-notes:
+  create-datachecker-issue:
     runs-on: ubuntu-latest
     needs: get-bibliography
 
     steps:
       - uses: actions/checkout@v6
 
-      - name: make notes
-        run: echo "If only I had something to say"
+      - name: create issue
+        run: |
+          RELEASE_TAG="v$(date +'%-m-%Y')"
+          gh issue create \
+            --title "DataChecker Results for Miletus Bibliography: $RELEASE_TAG" \
+            --body "issue-body" \
+            --assignee lsteinmann
 
 
   draft-release:
