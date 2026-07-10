@@ -1,8 +1,5 @@
-name: Run Python Scripts
+name: Process
 on:
-  push:
-    branches:
-      - new-workflows
   workflow_dispatch:
   schedule:
     - cron: '0 8 1 * *'
@@ -17,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          ref: new-workflows
+          ref: main
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -34,12 +31,11 @@ jobs:
       - name: Run the main bibliography builder
         run: python main.py
       
+      - name: Run the HTML-table-builder
+        run: python bibliography_convert.py
+      
       - name: Check for files
-        run: |
-          # Logs and tex-files
-          ls -la out/
-          # downloaded exports
-          ls -ls data/
+        run: ls -R out/
 
       - name: Upload Logs
         uses: actions/upload-artifact@v7
