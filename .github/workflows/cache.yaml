@@ -22,7 +22,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
+      - name: Print run ID
+        run: echo "Workflow-Run ID - ${{ github.run_id }}"
 
       - name: Determine mode
         id: mode
@@ -45,7 +48,7 @@ jobs:
       - name: Restore cache
         id: cache
         if: steps.mode.outputs.refresh != 'true'
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v6
         with:
           path: out/
           key: bibliography-${{ github.ref_name }}
@@ -72,7 +75,7 @@ jobs:
 
       - name: Save cache of updated files
         if: steps.mode.outputs.refresh == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache/save@v6
         with:
           path: out/
           key: bibliography-${{ github.ref_name }}
@@ -113,7 +116,7 @@ jobs:
     needs: get-bibliography
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download Data
         uses: actions/download-artifact@v4
