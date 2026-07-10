@@ -1,6 +1,11 @@
 name: Draft Release
-on:
+on:  
   workflow_dispatch:
+    inputs:
+      build_run_id:
+        description: "Workflow run ID containing the artifacts"
+        required: true
+        type: string
   workflow_run:
     workflows: ["Build Bibliography"]
     types:
@@ -8,6 +13,7 @@ on:
 
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  BUILD_RUN_ID: ${{ github.event.workflow_run.id || inputs.build_run_id }}
 
 jobs:
   Python:

@@ -60,3 +60,6 @@ jobs:
           path: out/tex/
           retention-days: 31
           overwrite: true
+      
+      - name: Print run ID
+        run: echo "Workflow-Run ID: ${{ github.run_id }}"
