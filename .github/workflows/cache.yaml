@@ -3,6 +3,11 @@ name: Refresh and Cache Files
 on:
   workflow_dispatch:
     inputs:
+      release:
+        description: "Draft a release on this run"
+        required: false
+        default: false
+        type: boolean
       refresh:
         description: "Refresh all bibliography files on this run"
         required: false
@@ -11,10 +16,6 @@ on:
 
   schedule:
     - cron: "0 8 1 * *"
-
-  push:
-    branches:
-      - main
 
 jobs:
   get-bibliography:
@@ -46,12 +47,11 @@ jobs:
           echo "refresh=$REFRESH" >> "$GITHUB_OUTPUT"
 
       - name: Restore cache
-        id: cache
-        if: steps.mode.outputs.refresh != 'true'
+        id: restore-cache
         uses: actions/cache/restore@v6
         with:
-          path: out/
           key: bibliography-${{ github.ref_name }}
+          path: out/
 
       - name: Setup Python
         if: steps.mode.outputs.refresh == 'true'
@@ -74,11 +74,11 @@ jobs:
         run: python bibliography_convert.py
 
       - name: Save cache of updated files
-        if: steps.mode.outputs.refresh == 'true'
+        if: always() && steps.restore-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:
+          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
           path: out/
-          key: bibliography-${{ github.ref_name }}
 
       - name: Show cached/refreshed files
         shell: bash
@@ -123,6 +123,25 @@ jobs:
         with:
           name: data
           path: out/data
+
+      - name: Show files
+        run: |
+          ls -R out/
+
+
+  draft-release:
+    if: github.event_name != 'workflow_dispatch' || inputs.release == true
+    runs-on: ubuntu-latest
+    needs: get-bibliography
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download Logs
+        uses: actions/download-artifact@v4
+        with:
+          name: logs
+          path: out/logs
 
       - name: Show files
         run: |
