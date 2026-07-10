@@ -1,4 +1,4 @@
-name: Process
+name: Build Bibliography
 on:
   workflow_dispatch:
   schedule:
