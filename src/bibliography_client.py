@@ -520,7 +520,7 @@ if __name__ == "__main__":
     import json
     from src.tag_client import TagClient
 
-    with open("data/Milet_Bibliography_JSON.json", "r") as file:
+    with open("out/data/Milet_Bibliography_JSON.json", "r") as file:
         data = json.load(file)
     tag_client = TagClient("data/tags/tags_sys.csv")
 

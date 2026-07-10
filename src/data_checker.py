@@ -187,7 +187,7 @@ if __name__ == "__main__":
     from src.tag_client import TagClient
 
     # Initialize with tag client
-    with open("data/Milet_Bibliography_JSON.json", "r") as file:
+    with open("out/data/Milet_Bibliography_JSON.json", "r") as file:
         data = json.load(file)
 
     tags = TagClient()
