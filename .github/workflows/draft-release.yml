@@ -16,7 +16,7 @@ env:
   BUILD_RUN_ID: ${{ github.event.workflow_run.id || inputs.build_run_id }}
 
 jobs:
-  Python:
+  Release-Draft:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,18 +27,21 @@ jobs:
       - name: Download Logs
         uses: actions/download-artifact@v8
         with:
+          run-id: $BUILD_RUN_ID
           name: logs
           path: out/logs
 
       - name: Download Data
         uses: actions/download-artifact@v8
         with:
+          run-id: $BUILD_RUN_ID
           name: data
           path: out/data
 
       - name: Download Tex Files
         uses: actions/download-artifact@v8
         with:
+          run-id: $BUILD_RUN_ID
           name: tex
           path: out/tex
 
