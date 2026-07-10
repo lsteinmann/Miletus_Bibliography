@@ -231,33 +231,26 @@ jobs:
           name: data
           path: out/data
 
-      - name: Download HTML Table
-        uses: actions/download-artifact@v4
-        with:
-          name: html
-          path: out/html
-
       - name: Download PDFs
         uses: actions/download-artifact@v4
         with:
           name: pdf
           path: out/pdf
 
-      - name: make file
-        run: echo "This is a test" > out/body.md
-      
       - name: Set bibliography version
         run: |
-          echo "RELEASE_NAME=The Miletus Bibliography (v. $(date +'%-m-%Y'))" >> "$GITHUB_ENV"
           echo "RELEASE_TAG=v$(date +'%-m-%Y')" >> "$GITHUB_ENV"
 
+      - name: make release body
+        run: RELEASE_TAG=${{ env.RELEASE_TAG }} sh ./make_release_body.sh
+      
       - name: Draft Release
         uses: ncipollo/release-action@v1
         with:
-          name: ${{ env.RELEASE_NAME }}
+          name: ${{ env.RELEASE_TAG }}
           tag: ${{ env.RELEASE_TAG }}
-          artifacts: "out/data/**,out/pdf/**,out/html/**"
+          artifacts: "out/data/**,out/pdf/**"
           draft: true
           makeLatest: true
           allowUpdates: true
-          bodyFile: "out/body.md"
+          bodyFile: "out/info/release_body.md"
