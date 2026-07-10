@@ -191,7 +191,7 @@ class DataChecker:
             self.log(f"Found {len(missing_pages)} items without page ranges:")
             for key in missing_pages:
                 self._log_item_info(key)
-            self.log("\nThis may or may not be correct, please check!")
+            self.log("\nPlease check these items!")
         else:
             self.log("All items have pages. Nice.")
 
@@ -214,7 +214,7 @@ if __name__ == "__main__":
         data = json.load(file)
 
     tags = TagClient()
-    data_checker = DataChecker(data, tags, "out/check_result.log")
+    data_checker = DataChecker(data, tags, "out/logs/check_result.log")
 
     data_checker.find_missing_citation_keys()
     data_checker.find_duplicate_citation_keys()
