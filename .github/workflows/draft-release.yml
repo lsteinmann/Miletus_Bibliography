@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          ref: new-workflows
+          ref: draft-release-workflow
       
       - name: Download Logs
         uses: actions/download-artifact@v8
