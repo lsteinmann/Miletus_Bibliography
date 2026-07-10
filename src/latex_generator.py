@@ -136,7 +136,8 @@ class LatexGenerator:
         grouped = self.bib.get_sorted_tag_groups()
         for tag in grouped:
             level = self.tags.get_hierarchy_level(tag)
-            strip_prefix = level in ["subsection", "subsubsection"]
+            strip_prefix = not set(level).isdisjoint(set(["subsection", "subsubsection"]))
+
             title = self.tags.get_title(tag, "DE", strip_prefix)
             heading = "\\" + level[0] + "[" + title + "]" + "{" + title + "}\n\n"
             file.writelines(heading)
@@ -167,7 +168,7 @@ if __name__ == "__main__":
     from src.tag_client import TagClient
 
     # Initialize with tag client
-    with open("data/Milet_Bibliography_JSON.json", "r") as file:
+    with open("out/data/Milet_Bibliography_JSON.json", "r") as file:
         data = json.load(file)
 
     tags = TagClient()

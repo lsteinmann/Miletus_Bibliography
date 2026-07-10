@@ -184,7 +184,11 @@ class TagClient:
             return None
         title = info[language]
         if strip_prefix:
-            return title.split(": ", 1)[1]
+            split = title.split(": ", 1)
+            if len(split) > 1:
+                return split[1]
+            else:
+                return split[0]
         else:
             return title
 
