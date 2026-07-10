@@ -48,9 +48,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: out/
-          key: out-files-${{ runner.os }}-${{ github.ref_name }}
+          key: bibliography-${{ runner.os }}-${{ github.ref_name }}
           restore-keys: |
-            out-files-${{ runner.os }}-
+            bibliography-${{ runner.os }}-${{ github.ref_name }}
 
       - name: Setup Python
         if: steps.mode.outputs.refresh == 'true'
@@ -77,7 +77,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: out/
-          key: out-files-${{ runner.os }}-${{ github.ref_name }}
+          key: bibliography-${{ runner.os }}-${{ github.ref_name }}
 
       - name: Show cached/refreshed files
         shell: bash
@@ -112,7 +112,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: out/
-          key: out-files-${{ runner.os }}-${{ github.ref_name }}
+          key: bibliography-${{ runner.os }}-${{ github.ref_name }}
 
       - name: Show files
         run: |
