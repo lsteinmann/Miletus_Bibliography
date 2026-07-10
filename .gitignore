@@ -55,6 +55,7 @@ api_notes.R
 /api_exports/*
 
 # Finished files
+out/*
 tex/*.pdf
 README.html
 .github/workflows/tinytex.yml
