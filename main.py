@@ -1,3 +1,4 @@
+import os
 from src.tag_client import TagClient
 from src.zotero_client import ZoteroClient
 from src.bib_handler import BibHandler
@@ -14,6 +15,10 @@ if __name__ == "__main__":
     print("------------------------------------------------------------------")
     print("------------------------- Let's go. ------------------------------")
     print("----------------------------------------------------------------\n")
+    if not os.path.exists("out/data"):
+        print("Creating the 'out/data'-directory...")
+        os.makedirs("out/data")
+
     print("Getting RIS from Zotero:")
     ris = zotero.get_ris(limit=limit)
     filename = "out/data/Milet_Bibliography_RIS.ris"
@@ -69,6 +74,10 @@ if __name__ == "__main__":
     print("------------------------------------------------------------------")
     print("------------------------- Let's go. ------------------------------")
     print("----------------------------------------------------------------\n")
+    if not os.path.exists("out/logs"):
+        print("Creating the 'out/logs'-directory...")
+        os.makedirs("out/logs")
+
     tag_client = TagClient()
     data_checker = DataChecker(
         items=zotero.json_data,
@@ -82,6 +91,9 @@ if __name__ == "__main__":
     print("------------------------------------------------------------------")
     print("------------------------- Let's go. ------------------------------")
     print("----------------------------------------------------------------\n")
+    if not os.path.exists("out/tex"):
+        print("Creating the 'out/tex'-directory...")
+        os.makedirs("out/tex")
 
     texgen = LatexGenerator(tags=tag_client, json_data=zotero.json_data)
 
