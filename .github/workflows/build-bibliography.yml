@@ -41,30 +41,26 @@ jobs:
           # downloaded exports
           ls -ls data/
 
-      - name: Draft Release
-        run: |
-          # Get today's date in YYYY-MM-DD format
-          DATE=$(date +"%Y-%m-%d")
-          MONTH=$(date +"%B")
-          YEAR=$(date +"%Y")
+      - name: Upload Logs
+        uses: actions/upload-artifact@v7
+        with: 
+          name: logs
+          path: out/logs/
+          retention-days: 31
+          overwrite: true
+      
+      - name: Upload Data
+        uses: actions/upload-artifact@v7
+        with: 
+          name: data
+          path: out/data/
+          retention-days: 31
+          overwrite: true
 
-          echo $GH_PAT | gh auth login --with-token
-
-          # Create a draft release using gh
-          gh release create "v$DATE" \
-            --title "Release $DATE" \
-            --draft \
-            --latest \
-            --notes "This is the monthly update of the Miletus Bibliography for $MONTH $YEAR." 
-            --repo $GITHUB_REPOSITORY
-
-      - name: Add files to release draft
-        run: |
-          DATE=$(date +"%Y-%m-%d")
-          echo $GH_PAT | gh auth login --with-token
-          gh release upload "v$DATE" ./out/check_result.log #DataChecker-Log --clobber
-          gh release upload "v$DATE" ./data/Milet_Bibliography_BibLaTeX.bib --clobber
-          gh release upload "v$DATE" ./data/Milet_Bibliography_BibTeX.bib --clobber
-          gh release upload "v$DATE" ./data/Milet_Bibliography_CSV.csv --clobber
-          gh release upload "v$DATE" ./data/Milet_Bibliography_JSON.json --clobber
-          gh release upload "v$DATE" ./data/Milet_Bibliography_RIS.ris --clobber
+      - name: Upload Tex Files
+        uses: actions/upload-artifact@v7
+        with: 
+          name: tex
+          path: out/tex/
+          retention-days: 31
+          overwrite: true

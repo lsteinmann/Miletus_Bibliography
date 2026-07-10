@@ -12,7 +12,7 @@ class DataChecker:
         self,
         items: List[Dict[str, Any]] = None,
         tags: "TagClient" = None,
-        logfile: str = "out/check_result.log",
+        logfile: str = "out/logs/check_result.log",
     ):
         """
         Initialize the DataChecker.

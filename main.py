@@ -16,7 +16,7 @@ if __name__ == "__main__":
     print("----------------------------------------------------------------\n")
     print("Getting RIS from Zotero:")
     ris = zotero.get_ris(limit=limit)
-    filename = "data/Milet_Bibliography_RIS.ris"
+    filename = "out/data/Milet_Bibliography_RIS.ris"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(ris)
     print(f"Written data to {filename}.\n")
@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     print("Getting JSON from Zotero:")
     json = zotero.get_json(limit=limit)
-    filename = "data/Milet_Bibliography_JSON.json"
+    filename = "out/data/Milet_Bibliography_JSON.json"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(json)
     print(f"Written data to {filename}.\n")
@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     print("Getting CSV from Zotero:")
     csv = zotero.get_csv(limit=limit)
-    filename = "data/Milet_Bibliography_CSV.csv"
+    filename = "out/data/Milet_Bibliography_CSV.csv"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(csv)
     print(f"Written data to {filename}.\n")
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     print("Getting BibLaTeX from Zotero:")
     biblatex = zotero.get_biblatex(limit=limit)
-    filename = "data/Milet_Bibliography_BibLaTeX.bib"
+    filename = "out/data/Milet_Bibliography_BibLaTeX.bib"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(biblatex)
     print(f"Written data to {filename}")
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     print("Getting BibTeX from Zotero:")
     bibtex = zotero.get_bibtex(limit=limit)
-    filename = "data/Milet_Bibliography_BibTeX.bib"
+    filename = "out/data/Milet_Bibliography_BibTeX.bib"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(bibtex)
     print(f"Written data to {filename}")
@@ -71,7 +71,9 @@ if __name__ == "__main__":
     print("----------------------------------------------------------------\n")
     tag_client = TagClient()
     data_checker = DataChecker(
-        items=zotero.json_data, tags=tag_client, logfile="out/check_result.log"
+        items=zotero.json_data,
+        tags=tag_client,
+        logfile="out/logs/check_result.log"
     )
 
     data_checker.check_all()
@@ -83,6 +85,13 @@ if __name__ == "__main__":
 
     texgen = LatexGenerator(tags=tag_client, json_data=zotero.json_data)
 
-    texgen.generate_by_author("out/bibstructure_by_author.tex")
-    texgen.generate_by_year("out/bibsections_by_year.tex")
-    texgen.generate_by_tag("out/bibstructure_by_keyword.tex")
+    texgen.generate_by_author(
+        output_path="out/tex/bibstructure_by_author.tex"
+    )
+    texgen.generate_by_tag(
+        output_path="out/tex/bibstructure_by_keyword.tex"
+    )
+    texgen.generate_by_year(
+        output_path_sections="out/tex/bibsections_by_year.tex",
+        output_path_check="out/tex/defbibcheck_by_year.tex"
+    )

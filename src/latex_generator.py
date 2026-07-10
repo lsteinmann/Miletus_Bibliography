@@ -22,7 +22,11 @@ class LatexGenerator:
         self.tags = tags
         self.bib = BibliographyClient(json=json_data, tags=tags)
 
-    def generate_by_year(self, output_path: str = "out/bibsections_by_year.tex") -> str:
+    def generate_by_year(
+            self,
+            output_path_sections: str = "out/tex/bibsections_by_year.tex",
+            output_path_check: str = "out/tex/defbibcheck_by_year.tex"
+    ) -> str:
         """
         Generate LaTeX sections by publication year.
 
@@ -33,8 +37,8 @@ class LatexGenerator:
             str: Generated LaTeX content
         """
         # TODO cant set the other pass as a param
-        sections_file = open("out/bibsections_by_year.tex", "w")
-        bibcheck_file = open("out/defbibcheck_by_year.tex", "w")
+        sections_file = open(output_path_sections, "w")
+        bibcheck_file = open(output_path_check, "w")
         years = []
         # TODO : actually this sucks, because the bib file will not
         # have all years in there correctly, so they will not be in the
@@ -70,7 +74,7 @@ class LatexGenerator:
         sections_file.close()
 
     def generate_by_author(
-        self, output_path: str = "out/bibstructure_by_author.tex"
+        self, output_path: str = "out/tex/bibstructure_by_author.tex"
     ) -> str:
         """
         Generate LaTeX structure by author.
@@ -112,7 +116,7 @@ class LatexGenerator:
         file.close()
 
     def generate_by_tag(
-        self, output_path: str = "out/bibstructure_by_keyword.tex"
+        self, output_path: str = "out/tex/bibstructure_by_keyword.tex"
     ) -> str:
         """
         Generate LaTeX structure by tags.
