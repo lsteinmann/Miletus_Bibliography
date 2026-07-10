@@ -57,6 +57,8 @@ class DataChecker:
                     "key": key,
                     "citationKey": item_data.get("citationKey", None),
                     "title": item_data.get("title", None),
+                    "pages": item_data.get("pages", None),
+                    "itemType": item_data.get("itemType", None),
                     "tags": tags,
                     "date": item_data.get("date", None),
                     "creators": item_data.get("creators", []),
@@ -154,6 +156,7 @@ class DataChecker:
 
     def find_items_without_authors(self):
         self.log("----------------------------------------------------------\n")
+        self.log("Checking for items without authors...")
         missing_authors = []
         for key in self.clean_items:
             creators = self.clean_items[key]["creators"]
@@ -173,12 +176,32 @@ class DataChecker:
         else:
             self.log("All items have at least one author. Good Job.")
 
+    def find_articles_without_page_ranges(self):
+        self.log("----------------------------------------------------------\n")
+        section_types = set(["bookSection", "dictionaryEntry", "journalArticle"])
+        self.log(f"Checking for items of itemType {section_types} without page ranges...")
+        missing_pages = []
+        for key in self.clean_items:
+            is_section = self.clean_items[key]["itemType"] in section_types
+            pages = self.clean_items[key]["pages"]
+            if is_section:
+                if pages == "" or pages is None:
+                    missing_pages.append(key)
+        if len(missing_pages) > 0:
+            self.log(f"Found {len(missing_pages)} items without page ranges:")
+            for key in missing_pages:
+                self._log_item_info(key)
+            self.log("\nThis may or may not be correct, please check!")
+        else:
+            self.log("All items have pages. Nice.")
+
     def check_all(self):
         self.find_missing_citation_keys()
         self.find_duplicate_citation_keys()
         self.find_items_without_tags()
         self.find_items_without_publication_date()
         self.find_items_without_authors()
+        self.find_articles_without_page_ranges()
 
 
 # Example usage:
@@ -198,3 +221,4 @@ if __name__ == "__main__":
     data_checker.find_items_without_tags()
     data_checker.find_items_without_publication_date()
     data_checker.find_items_without_authors()
+    data_checker.find_articles_without_page_ranges()
