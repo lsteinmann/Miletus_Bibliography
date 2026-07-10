@@ -109,6 +109,14 @@ jobs:
           retention-days: 31
           overwrite: true
 
+      - name: Upload HTML Table
+        uses: actions/upload-artifact@v4
+        with: 
+          name: html
+          path: out/html/
+          retention-days: 31
+          overwrite: true
+
       - name: Upload TeX files
         uses: actions/upload-artifact@v4
         with: 
@@ -163,49 +171,45 @@ jobs:
           path: out/pdf/
 
 
-  use-files:
+  make-release-notes:
     runs-on: ubuntu-latest
     needs: get-bibliography
 
     steps:
       - uses: actions/checkout@v6
 
-      - name: Download Data
-        uses: actions/download-artifact@v4
-        with:
-          name: data
-          path: out/data
-
-      - name: Show files
-        run: |
-          ls -R out/
+      - name: make notes
+        run: echo "If only I had something to say"
 
 
   draft-release:
     if: github.event_name != 'workflow_dispatch' || inputs.release == true
     runs-on: ubuntu-latest
-    needs: get-bibliography
+    needs: build-pdfs
     
     permissions:
       contents: write
-    
-    env:
-      GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
     steps:
       - uses: actions/checkout@v6
-
-      - name: Download Logs
-        uses: actions/download-artifact@v4
-        with:
-          name: logs
-          path: out/logs
 
       - name: Download Data
         uses: actions/download-artifact@v4
         with:
           name: data
           path: out/data
+
+      - name: Download HTML Table
+        uses: actions/download-artifact@v4
+        with:
+          name: html
+          path: out/html
+
+      - name: Download PDFs
+        uses: actions/download-artifact@v4
+        with:
+          name: pdf
+          path: out/pdf
 
       - name: make file
         run: echo "This is a test" > out/body.md
@@ -220,7 +224,7 @@ jobs:
         with:
           name: ${{ env.RELEASE_NAME }}
           tag: ${{ env.RELEASE_TAG }}
-          artifacts: "out/data/**"
+          artifacts: "out/data/**,out/pdf/**,out/html/**"
           draft: true
           makeLatest: true
           allowUpdates: true
