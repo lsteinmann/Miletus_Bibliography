@@ -13,7 +13,7 @@ from src.utils import extract_four_digits
 
 class BibliographyClient:
     def __init__(self, json: List[Dict[str, Any]] = None, tags: "TagClient" = None):
-        print("The Author Client has been initialized. ;)")
+        print("The BibliographyClient has been initialized. ;)")
         if not tags:
             raise Exception("BibliographyClient needs a TagClient")
         if not json:
