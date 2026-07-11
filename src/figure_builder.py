@@ -33,7 +33,7 @@ class FigureBuilder:
         x_start = (min(year_counts.keys()) // 25) * 25
         x_end = ((max(year_counts.keys()) + 24) // 25) * 25
 
-        bins = np.arange(x_start-25, x_end+25, 5)
+        bins = np.arange(x_start-5, x_end+5, 5)
         bin_centers = (bins[:-1] + bins[1:]) / 2
         bin_counts, _ = np.histogram(list(year_counts.keys()), bins=bins, weights=list(year_counts.values()))
         plt.figure(figsize=(12, 5), dpi=100)  # 1200x500 px at 100 DPI
@@ -43,7 +43,7 @@ class FigureBuilder:
         )
 
         x_ticks = np.arange(x_start, x_end+25, 25)
-        plt.xlim(x_start, x_end)
+        plt.xlim(bins[0], bins[-1])
         plt.xticks(x_ticks, fontsize=15)
         y_max = max(bin_counts) * 1.1
         plt.ylim(0, y_max)
