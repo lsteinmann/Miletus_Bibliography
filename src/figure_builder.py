@@ -1,9 +1,9 @@
-from typing import List, Any, Dict, Tuple, Optional
-from src.utils import extract_four_digits
+from typing import List, Any, Dict
 from src.bibliography_client import BibliographyClient
 import matplotlib.pyplot as plt
 from collections import Counter
 import numpy as np
+
 
 class FigureBuilder:
     def __init__(
@@ -14,9 +14,6 @@ class FigureBuilder:
         print("The FigureBuilder has been initialized.")
         self.tags = tags
         self.bib = BibliographyClient(json=json, tags=tags)
-
-    def __process_json(self, json: List[Dict[str, Any]] = None):
-        print("Hi")
 
     def plot_count_by_year(
         self,
@@ -77,5 +74,4 @@ if __name__ == "__main__":
     figs = FigureBuilder(json=data, tags=tag_client)
     demo = True
     if demo:
-        print("Hello World")
         figs.plot_count_by_year("out/figures/mil-pubs-by-year.png")
