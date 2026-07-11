@@ -31,10 +31,12 @@ class DataChecker:
         log.close()
         print("Initialized the DataChecker.")
 
-    def log(self, msg):
+    def log(self, msg, addspace: bool = True):
         print(msg)
+        if addspace:
+            msg = msg + "\n\n"
         log = open(self.logfile, "a")
-        log.write(f"{msg} \n\n")
+        log.write(f"{msg}")
         log.close()
 
     def _process_items(self, items: List[Dict[str, Any]]) -> Dict[str, None]:
@@ -68,19 +70,29 @@ class DataChecker:
                 if key not in self.clean_items:
                     self.clean_items[key] = this_item
 
-    def _log_item_info(self, key: str):
+    def _log_item_info(self, key: str, heading: bool = False):
+        if heading:
+            self.log(
+                "| key  | title | dateAdded |\n",
+                addspace=False
+            )
+            self.log(
+                "| ---- | ----- | --------- |\n",
+                addspace=False
+            )
+            return None
+
         item = self.clean_items[key]
         msg = (
-            key
-            + ": "
+            "| "
+            + key
+            + " | "
             + item["title"]
-            + " (added by user "
-            + item["createdBy"]
-            + " on "
+            + " | "
             + item["dateAdded"]
-            + ")"
+            + " | \n"
         )
-        self.log(msg)
+        self.log(msg, addspace=False)
 
     def find_missing_citation_keys(self):
         self.log("----------------------------------------------------------\n")
@@ -91,6 +103,7 @@ class DataChecker:
                 missing.append(key)
         if len(missing) > 0:
             self.log(f"Found {len(missing)} items missing citationKeys:")
+            self._log_item_info(key, heading=True)
             for key in missing:
                 self._log_item_info(key)
             self.log("You need to check and fix these.")
@@ -109,6 +122,7 @@ class DataChecker:
                 multiple.append(key)
         if len(multiple) > 0:
             self.log(f"Found {len(multiple)} duplicate citationKeys:")
+            self._log_item_info(key, heading=True)
             for key in multiple:
                 self._log_item_info(key)
             self.log("You need to check and fix these.")
@@ -125,6 +139,7 @@ class DataChecker:
                 missing_tags.append(key)
         if len(missing_tags) > 0:
             self.log(f"Found {len(missing_tags)} items without systematic tags:")
+            self._log_item_info(key, heading=True)
             for key in missing_tags:
                 self._log_item_info(key)
         else:
@@ -143,6 +158,7 @@ class DataChecker:
             self.log(
                 f"Found {len(missing_date)} items without a well-formatted publication year:"
             )
+            self._log_item_info(key, heading=True)
             for key in missing_date:
                 self._log_item_info(key)
             self.log(f"\nPlease fix them by reducing them to a four digit number.")
@@ -169,6 +185,7 @@ class DataChecker:
                 missing_authors.append(key)
         if len(missing_authors) > 0:
             self.log(f"Found {len(missing_authors)} items without authors:")
+            self._log_item_info(key, heading=True)
             for key in missing_authors:
                 self._log_item_info(key)
             self.log("\nThis may or may not be correct, please check!")
@@ -189,6 +206,7 @@ class DataChecker:
                     missing_pages.append(key)
         if len(missing_pages) > 0:
             self.log(f"Found {len(missing_pages)} items without page ranges:")
+            self._log_item_info(key, heading=True)
             for key in missing_pages:
                 self._log_item_info(key)
             self.log("\nPlease check these items!")

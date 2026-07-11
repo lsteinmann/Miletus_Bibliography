@@ -24,7 +24,7 @@ mkdir -p "$OUT_DIR"
     echo 
     echo "## Data Quality Report for v$(date '+%-m-%Y')"
     echo
-    sed -E 's/^([A-Z0-9]{8}): (.*)$/[\1: \2](https:\/\/www.zotero.org\/groups\/4475959\/milet_bibliography\/items\/\1)/' "$LOG_FILE"
+    sed -E 's/\| ([A-Z0-9]{8}) \|/| [\1](https:\/\/www.zotero.org\/groups\/4475959\/milet_bibliography\/items\/\1) |/' "$LOG_FILE"
     echo 
     echo "-----------------------------------------------------------------------"
     echo
