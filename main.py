@@ -4,6 +4,7 @@ from src.zotero_client import ZoteroClient
 from src.bib_handler import BibHandler
 from src.latex_generator import LatexGenerator
 from src.data_checker import DataChecker
+from src.figure_builder import FigureBuilder
 
 if __name__ == "__main__":
     zotero = ZoteroClient()
@@ -86,6 +87,15 @@ if __name__ == "__main__":
     )
 
     data_checker.check_all()
+
+    print("Now we have to produce the new figures!\n")
+    print("------------------------------------------------------------------")
+    print("------------------------- Let's go. ------------------------------")
+    print("----------------------------------------------------------------\n")
+    figure_builder = FigureBuilder(json=zotero.json_data, tags=tag_client)
+    figure_builder.plot_count_by_year(
+        output_path="out/figures/mil-pubs-by-year.png"
+    )
 
     print("Finally, I will build the LaTeX-files!\n")
     print("------------------------------------------------------------------")
