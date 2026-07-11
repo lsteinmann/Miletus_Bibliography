@@ -29,7 +29,6 @@ class FigureBuilder:
                 continue
             year = int(year_str)
             year_counts[year] += len(items)
-        print(year_counts)
 
         x_start = (min(year_counts.keys()) // 25) * 25
         x_end = ((max(year_counts.keys()) + 24) // 25) * 25
